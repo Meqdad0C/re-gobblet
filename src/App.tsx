@@ -1,63 +1,88 @@
 import { ModeToggle } from '@/components/mode-toggle'
 import { cn } from '@/lib/utils'
-
-enum Player {
-  Red,
-  Blue,
-}
-
-enum Size {
-  Small,
-  Medium,
-  Large,
-  XLarge,
-}
+import {
+  useDroppable,
+  useDraggable,
+  DndContext,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import { CSS } from '@dnd-kit/utilities'
+import { Player, Size } from '@/types'
+import { useGame, useGameDispatch } from '@/hooks/game-hooks'
+import { useEffect } from 'react'
 
 /**
  * Piece has a size and a color
  * Color is either red or blue
  * Size is either small, medium, or large
  */
-const Piece = ({ color, size }: { color: Player; size: Size }) => {
+const Piece = ({
+  stack_number,
+  color,
+  size,
+}: {
+  color: Player
+  size: Size
+  stack_number: number
+}) => {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: `piece-${stack_number}-${color}-${size}`,
+    data: { stack_number, color, size },
+  })
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+  }
 
   return (
-      <div
-        className={cn(
-          ['absolute rounded-full border-2 border-black'],
-          {
-            'bg-red-500': color === Player.Red,
-            'bg-blue-500': color === Player.Blue,
-          },
-          {
-            'h-14 w-14': size === Size.Small,
-            'h-20 w-20': size === Size.Medium,
-            'h-24 w-24': size === Size.Large,
-            'h-[6.5rem] w-[6.5rem]': size === Size.XLarge,
-          },
-          {
-            'hover:bg-red-400': color === Player.Red,
-            'hover:bg-blue-400': color === Player.Blue,
-          },
-          {
-            'hover:h-16 hover:w-16': size === Size.Small,
-            'hover:h-20 hover:w-20': size === Size.Medium,
-            'hover:h-24 hover:w-24': size === Size.Large,
-            'hover:h-[7rem] hover:w-[7rem]': size === Size.XLarge,
-          },
-          {
-            'z-10': size === Size.Small,
-            'z-20': size === Size.Medium,
-            'z-30': size === Size.Large,
-            'z-40': size === Size.XLarge,
-          },
-          {
-            'text-sm': size === Size.Small,
-            'text-base': size === Size.Medium,
-            'text-lg': size === Size.Large,
-            'text-xl': size === Size.XLarge,
-          },
-        )}
-      />
+    <div
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      style={style}
+      className={cn(
+        ['absolute cursor-pointer rounded-full border-2 border-black'],
+        {
+          'bg-red-500': color === Player.Red,
+          'bg-blue-500': color === Player.Blue,
+        },
+        {
+          'h-14 w-14': size === Size.Small,
+          'h-20 w-20': size === Size.Medium,
+          'h-24 w-24': size === Size.Large,
+          'h-[6.5rem] w-[6.5rem]': size === Size.XLarge,
+        },
+        {
+          'hover:bg-red-400': color === Player.Red,
+          'hover:bg-blue-400': color === Player.Blue,
+        },
+        {
+          'hover:h-16 hover:w-16': size === Size.Small,
+          'hover:h-20 hover:w-20': size === Size.Medium,
+          'hover:h-24 hover:w-24': size === Size.Large,
+          'hover:h-[7rem] hover:w-[7rem]': size === Size.XLarge,
+        },
+        {
+          'z-10': size === Size.Small,
+          'z-20': size === Size.Medium,
+          'z-30': size === Size.Large,
+          'z-40': size === Size.XLarge,
+        },
+        {
+          'text-sm': size === Size.Small,
+          'text-base': size === Size.Medium,
+          'text-lg': size === Size.Large,
+          'text-xl': size === Size.XLarge,
+        },
+        {
+          'text-white': color === Player.Red,
+          'text-black': color === Player.Blue,
+        },
+        {
+          'opacity-50': transform,
+        },
+      )}
+    />
   )
 }
 
@@ -69,7 +94,7 @@ const Inventory = ({ player }: { player: Player }) => {
       {[0, 1, 2].map((i) => (
         <div key={i} className='grid items-center justify-items-center'>
           {stack.map((size, idx) => (
-            <Piece key={idx} color={player} size={size} />
+            <Piece key={idx} color={player} size={size} stack_number={i} />
           ))}
         </div>
       ))}
@@ -106,8 +131,14 @@ const Cell = ({
   col: number
   children?: React.ReactNode
 }) => {
+  const { isOver, setNodeRef } = useDroppable({
+    data: { row, col },
+    id: `cell-${row}-${col}`,
+  })
+
   return (
     <div
+      ref={setNodeRef}
       className={cn(
         'h-32 w-32 border-2 border-black',
         'bg-gradient-to-r from-green-400 to-blue-500',
@@ -115,6 +146,9 @@ const Cell = ({
         'rounded-2xl',
         'flex items-center justify-center',
         'text-2xl font-bold',
+        {
+          'border-4 border-red-500': isOver,
+        },
       )}
     >
       {children}
@@ -123,11 +157,29 @@ const Cell = ({
 }
 
 const Game = () => {
+  const game_state = useGame()
+  const game_dispatch = useGameDispatch()
+  console.log(game_state)
+
+  useEffect(() => {
+    console.log('game state changed')
+    game_dispatch({ type: 'MOVE', payload: [[1, 2]] })
+  }, [])
+
+  const handleDragEnd = (e: DragEndEvent) => {
+    const { over, active } = e
+    console.log('drag end')
+    console.log(over)
+    console.log(active)
+  }
+
   return (
     <div className='flex flex-col items-center justify-between gap-2'>
-      <Inventory player={Player.Blue} />
-      <Board />
-      <Inventory player={Player.Red} />
+      <DndContext onDragEnd={handleDragEnd}>
+        <Inventory player={Player.Blue} />
+        <Board />
+        <Inventory player={Player.Red} />
+      </DndContext>
     </div>
   )
 }
