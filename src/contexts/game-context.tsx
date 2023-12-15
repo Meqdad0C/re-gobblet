@@ -1,4 +1,5 @@
 import { Board, GameState, GameAction, Stack, Player, Size } from '@/types'
+import { isLegalMove } from '@/utils'
 import React from 'react'
 import { createContext } from 'react'
 import { useImmerReducer } from 'use-immer'
@@ -57,20 +58,22 @@ const gameReducer = (state: GameState, action: GameAction) => {
 const doMove = (state: GameState, action: GameAction) => {
   const { player, stack_number, from, to, size } = action.payload
   console.log('[doMove]', player, stack_number, from, to, size)
-  const isMoveFromInventory = from[0] === -1
 
-  const inventory = player ? state.inventory_1 : state.inventory_0
-  const inventory_stack = inventory[stack_number]
-  console.log(
-    '[doMove] inventory_stack',
-    JSON.parse(JSON.stringify(inventory_stack)),
-  )
-  const piece = inventory_stack.pop()!
-  const cell = state.board[to[0]][to[1]]
-  cell.push(piece)
+  if (!isLegalMove(state, action)) {
+    console.log('[doMove] illegal move')
+    return state
+  }
+  const from_stack = from[0] === -1
+    ? player
+      ? state.inventory_1[stack_number]
+      : state.inventory_0[stack_number]
+    : state.board[from[0]][from[1]]
 
+  const to_cell = state.board[to[0]][to[1]]
+
+  const piece = from_stack.pop()!
+  to_cell.push(piece)
   return state
 }
 
 export default GameProvider
-

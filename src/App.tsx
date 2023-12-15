@@ -48,12 +48,12 @@ const Piece = ({ player, size, stack_number, location }: Piece_t) => {
           'hover:bg-red-400': player === Player.Red,
           'hover:bg-blue-400': player === Player.Blue,
         },
-        {
+/*         {
           'z-10': size === Size.Small,
           'z-20': size === Size.Medium,
           'z-30': size === Size.Large,
           'z-40': size === Size.XLarge,
-        },
+        }, */
         {
           'text-sm': size === Size.Small,
           'text-base': size === Size.Medium,
@@ -65,7 +65,7 @@ const Piece = ({ player, size, stack_number, location }: Piece_t) => {
           'text-black': player === Player.Blue,
         },
         {
-          'opacity-50': transform,
+          'opacity-50 z-20': transform,
         },
       )}
     />
