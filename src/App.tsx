@@ -5,6 +5,7 @@ import {
   useDraggable,
   DndContext,
   DragEndEvent,
+  DragStartEvent,
 } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { Player, Size, Piece_t } from '@/types'
@@ -16,6 +17,7 @@ import { useGame, useGameDispatch } from '@/hooks/game-hooks'
  * Size is either small, medium, or large
  */
 const Piece = ({ player, size, stack_number, location }: Piece_t) => {
+  const { turn } = useGame()
   const ref_data: Piece_t = { player, size, stack_number, location }
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: `piece-${stack_number}-${player}-${size}`,
@@ -29,11 +31,11 @@ const Piece = ({ player, size, stack_number, location }: Piece_t) => {
   return (
     <div
       ref={setNodeRef}
-      {...attributes}
-      {...listeners}
+      {...(player === turn ? attributes : null)}
+      {...(player === turn ? listeners : null)}
       style={style}
       className={cn(
-        ['absolute cursor-pointer rounded-full border-2 border-black'],
+        ['absolute rounded-full border-2 border-black'],
         {
           'bg-red-500': player === Player.Red,
           'bg-blue-500': player === Player.Blue,
@@ -48,12 +50,6 @@ const Piece = ({ player, size, stack_number, location }: Piece_t) => {
           'hover:bg-red-400': player === Player.Red,
           'hover:bg-blue-400': player === Player.Blue,
         },
-/*         {
-          'z-10': size === Size.Small,
-          'z-20': size === Size.Medium,
-          'z-30': size === Size.Large,
-          'z-40': size === Size.XLarge,
-        }, */
         {
           'text-sm': size === Size.Small,
           'text-base': size === Size.Medium,
@@ -65,7 +61,7 @@ const Piece = ({ player, size, stack_number, location }: Piece_t) => {
           'text-black': player === Player.Blue,
         },
         {
-          'opacity-50 z-20': transform,
+          'z-20 opacity-50': transform,
         },
       )}
     />
@@ -123,7 +119,7 @@ const Cell = ({ row, col }: { row: number; col: number }) => {
   })
   const { board } = useGame()
   const cell_stack = board[row][col]
-  console.log(cell_stack)
+  // console.log(cell_stack)
 
   return (
     <div
@@ -158,9 +154,6 @@ const Game = () => {
 
   const handleDragEnd = (e: DragEndEvent) => {
     const { over, active } = e
-    console.log('drag end')
-    console.log('[over]', over)
-    console.log('[active]', active)
     if (over && active) {
       const { player, location, stack_number, size } = active.data.current as Piece_t
       const { row, col } = over.data.current as { row: number; col: number }

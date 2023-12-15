@@ -17,11 +17,14 @@ export type Piece_t = {
 }
 export type Stack = Array<Piece_t>
 export type Board = Array<Array<Stack>>
+
 export interface GameState {
   board: Board
   inventory_0: Array<Stack>
   inventory_1: Array<Stack>
+  turn : Player
 }
+
 export type Move = {
   type: 'MOVE'
   payload: {

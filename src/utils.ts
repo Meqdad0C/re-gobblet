@@ -1,4 +1,8 @@
-import {  GameState, Move, Piece_t } from '@/types'
+import { GameState, Move, Piece_t, Player } from '@/types'
+
+export const switch_turn = (turn : Player): Player => {
+    return turn === Player.Red ? Player.Blue : Player.Red
+}
 
 export const is_a_bigger_than_b = (a: Piece_t, b: Piece_t): boolean => {
   return a.size > b.size

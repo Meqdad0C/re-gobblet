@@ -1,5 +1,5 @@
 import { Board, GameState, GameAction, Stack, Player, Size } from '@/types'
-import { isLegalMove } from '@/utils'
+import { isLegalMove, switch_turn } from '@/utils'
 import React from 'react'
 import { createContext } from 'react'
 import { useImmerReducer } from 'use-immer'
@@ -26,6 +26,7 @@ const game_initial_state: GameState = {
   board: board_initial_state,
   inventory_0: inventory_initial_state[0],
   inventory_1: inventory_initial_state[1],
+  turn: Player.Red,
 }
 
 export const GameStateContext = createContext({} as GameState)
@@ -73,6 +74,8 @@ const doMove = (state: GameState, action: GameAction) => {
 
   const piece = from_stack.pop()!
   to_cell.push(piece)
+
+  state.turn = switch_turn(state.turn)
   return state
 }
 
