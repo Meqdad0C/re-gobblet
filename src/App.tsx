@@ -140,14 +140,15 @@ const Cell = ({ row, col }: { row: number; col: number }) => {
         },
       )}
     >
-      {cell_stack.length > 0 && (
+      {cell_stack.map((p, idx) => (
         <Piece
-          player={cell_stack[0].player}
-          size={cell_stack[0].size}
-          stack_number={cell_stack[0].stack_number}
+          player={p.player}
+          size={p.size}
+          stack_number={p.stack_number}
           location={[row, col]}
+          key={idx}
         />
-      )}
+      ))}
     </div>
   )
 }
@@ -161,13 +162,14 @@ const Game = () => {
     console.log('[over]', over)
     console.log('[active]', active)
     if (over && active) {
-      const { player, location, stack_number } = active.data.current
+      const { player, location, stack_number, size } = active.data.current
       const { row, col } = over.data.current
       dispatch({
         type: 'MOVE',
         payload: {
           player,
           stack_number,
+          size,
           from: location,
           to: [row, col],
         },
