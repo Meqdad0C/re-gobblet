@@ -9,7 +9,6 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { Player, Size, Piece_t } from '@/types'
 import { useGame, useGameDispatch } from '@/hooks/game-hooks'
-import { useEffect } from 'react'
 
 /**
  * Piece has a size and a color
@@ -17,9 +16,10 @@ import { useEffect } from 'react'
  * Size is either small, medium, or large
  */
 const Piece = ({ player, size, stack_number, location }: Piece_t) => {
+  const ref_data: Piece_t = { player, size, stack_number, location }
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: `piece-${stack_number}-${player}-${size}`,
-    data: { stack_number, player, size, location },
+    data: ref_data,
   })
 
   const style = {
@@ -162,8 +162,8 @@ const Game = () => {
     console.log('[over]', over)
     console.log('[active]', active)
     if (over && active) {
-      const { player, location, stack_number, size } = active.data.current
-      const { row, col } = over.data.current
+      const { player, location, stack_number, size } = active.data.current as Piece_t
+      const { row, col } = over.data.current as { row: number; col: number }
       dispatch({
         type: 'MOVE',
         payload: {

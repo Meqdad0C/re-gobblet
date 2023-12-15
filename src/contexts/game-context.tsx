@@ -1,6 +1,6 @@
 import { Board, GameState, GameAction, Stack, Player, Size } from '@/types'
 import React from 'react'
-import { createContext, useReducer } from 'react'
+import { createContext } from 'react'
 import { useImmerReducer } from 'use-immer'
 
 const board_initial_state: Board = Array.from({ length: 4 }, () =>
@@ -56,7 +56,8 @@ const gameReducer = (state: GameState, action: GameAction) => {
 
 const doMove = (state: GameState, action: GameAction) => {
   const { player, stack_number, from, to, size } = action.payload
-  console.table('[doMove]', player, stack_number, from, to, size)
+  console.log('[doMove]', player, stack_number, from, to, size)
+  const isMoveFromInventory = from[0] === -1
 
   const inventory = player ? state.inventory_1 : state.inventory_0
   const inventory_stack = inventory[stack_number]
@@ -64,9 +65,8 @@ const doMove = (state: GameState, action: GameAction) => {
     '[doMove] inventory_stack',
     JSON.parse(JSON.stringify(inventory_stack)),
   )
-  const piece = inventory_stack.pop()
-  const board = state.board
-  const cell = board[to[0]][to[1]]
+  const piece = inventory_stack.pop()!
+  const cell = state.board[to[0]][to[1]]
   cell.push(piece)
 
   return state

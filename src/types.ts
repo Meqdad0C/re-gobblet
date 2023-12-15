@@ -25,8 +25,11 @@ export interface GameState {
 export type Move = {
   type: 'MOVE'
   payload: {
+    player: Player
+    stack_number: number
     from: number[]
     to: number[]
+    size: Size
   }
 }
 export type GameAction = Move
