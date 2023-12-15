@@ -5,7 +5,6 @@ import {
   useDraggable,
   DndContext,
   DragEndEvent,
-  DragStartEvent,
 } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { Player, Size, Piece_t } from '@/types'
@@ -70,8 +69,7 @@ const Piece = ({ player, size, stack_number, location }: Piece_t) => {
 
 const Inventory = ({ player }: { player: Player }) => {
   const game_state = useGame()
-  const inventory =
-    player === Player.Red ? game_state.inventory_0 : game_state.inventory_1
+  const inventory = game_state.inventories[player]
 
   return (
     <div className='grid h-40 w-full grid-cols-3 rounded-2xl border-2 border-black dark:border-white'>

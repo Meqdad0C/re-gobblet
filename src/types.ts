@@ -20,8 +20,7 @@ export type Board = Array<Array<Stack>>
 
 export interface GameState {
   board: Board
-  inventory_0: Array<Stack>
-  inventory_1: Array<Stack>
+  inventories: [Array<Stack>,Array<Stack>]
   turn : Player
 }
 

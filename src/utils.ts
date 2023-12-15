@@ -12,9 +12,7 @@ export const isLegalMove = (state: GameState, move: Move): boolean => {
   const { from, to, player, stack_number } = move.payload
   const isMoveFromInventory = from[0] === -1
   const from_stack = isMoveFromInventory
-    ? player
-      ? state.inventory_1[stack_number]
-      : state.inventory_0[stack_number]
+    ? state.inventories[player][stack_number]
     : state.board[from[0]][from[1]]
 
   const to_stack = state.board[to[0]][to[1]]

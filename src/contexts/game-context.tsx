@@ -24,8 +24,7 @@ const inventory_initial_state: Array<Array<Stack>> = [
 
 const game_initial_state: GameState = {
   board: board_initial_state,
-  inventory_0: inventory_initial_state[0],
-  inventory_1: inventory_initial_state[1],
+  inventories: [inventory_initial_state[0], inventory_initial_state[1]],
   turn: Player.Red,
 }
 
@@ -64,11 +63,10 @@ const doMove = (state: GameState, action: GameAction) => {
     console.log('[doMove] illegal move')
     return state
   }
-  const from_stack = from[0] === -1
-    ? player
-      ? state.inventory_1[stack_number]
-      : state.inventory_0[stack_number]
-    : state.board[from[0]][from[1]]
+  const from_stack =
+    from[0] === -1
+      ? state.inventories[player][stack_number]
+      : state.board[from[0]][from[1]]
 
   const to_cell = state.board[to[0]][to[1]]
 
