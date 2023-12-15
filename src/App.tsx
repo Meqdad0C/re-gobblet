@@ -7,7 +7,7 @@ import {
   DragEndEvent,
 } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
-import { Player, Size } from '@/types'
+import { Player, Size, Piece_t } from '@/types'
 import { useGame, useGameDispatch } from '@/hooks/game-hooks'
 import { useEffect } from 'react'
 
@@ -16,18 +16,10 @@ import { useEffect } from 'react'
  * Color is either red or blue
  * Size is either small, medium, or large
  */
-const Piece = ({
-  stack_number,
-  color,
-  size,
-}: {
-  color: Player
-  size: Size
-  stack_number: number
-}) => {
+const Piece = ({ player, size, stack_number, location }: Piece_t) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: `piece-${stack_number}-${color}-${size}`,
-    data: { stack_number, color, size },
+    id: `piece-${stack_number}-${player}-${size}`,
+    data: { stack_number, player, size, location },
   })
 
   const style = {
@@ -43,24 +35,18 @@ const Piece = ({
       className={cn(
         ['absolute cursor-pointer rounded-full border-2 border-black'],
         {
-          'bg-red-500': color === Player.Red,
-          'bg-blue-500': color === Player.Blue,
+          'bg-red-500': player === Player.Red,
+          'bg-blue-500': player === Player.Blue,
         },
         {
           'h-14 w-14': size === Size.Small,
           'h-20 w-20': size === Size.Medium,
-          'h-24 w-24': size === Size.Large,
+          'h-[5.5rem] w-[5.5rem]': size === Size.Large,
           'h-[6.5rem] w-[6.5rem]': size === Size.XLarge,
         },
         {
-          'hover:bg-red-400': color === Player.Red,
-          'hover:bg-blue-400': color === Player.Blue,
-        },
-        {
-          'hover:h-16 hover:w-16': size === Size.Small,
-          'hover:h-20 hover:w-20': size === Size.Medium,
-          'hover:h-24 hover:w-24': size === Size.Large,
-          'hover:h-[7rem] hover:w-[7rem]': size === Size.XLarge,
+          'hover:bg-red-400': player === Player.Red,
+          'hover:bg-blue-400': player === Player.Blue,
         },
         {
           'z-10': size === Size.Small,
@@ -75,8 +61,8 @@ const Piece = ({
           'text-xl': size === Size.XLarge,
         },
         {
-          'text-white': color === Player.Red,
-          'text-black': color === Player.Blue,
+          'text-white': player === Player.Red,
+          'text-black': player === Player.Blue,
         },
         {
           'opacity-50': transform,
@@ -87,14 +73,22 @@ const Piece = ({
 }
 
 const Inventory = ({ player }: { player: Player }) => {
-  const stack = [Size.XLarge, Size.Large, Size.Medium, Size.Small]
+  const game_state = useGame()
+  const inventory =
+    player === Player.Red ? game_state.inventory_0 : game_state.inventory_1
 
   return (
     <div className='grid h-40 w-full grid-cols-3 rounded-2xl border-2 border-black dark:border-white'>
-      {[0, 1, 2].map((i) => (
+      {inventory.map((stack, i) => (
         <div key={i} className='grid items-center justify-items-center'>
-          {stack.map((size, idx) => (
-            <Piece key={idx} color={player} size={size} stack_number={i} />
+          {stack.map((p, idx) => (
+            <Piece
+              location={p.location}
+              key={idx}
+              player={p.player}
+              size={p.size}
+              stack_number={p.stack_number}
+            />
           ))}
         </div>
       ))}
@@ -122,19 +116,14 @@ const Row = ({ row }: { row: number }) => {
   )
 }
 
-const Cell = ({
-  row,
-  col,
-  children,
-}: {
-  row: number
-  col: number
-  children?: React.ReactNode
-}) => {
+const Cell = ({ row, col }: { row: number; col: number }) => {
   const { isOver, setNodeRef } = useDroppable({
     data: { row, col },
     id: `cell-${row}-${col}`,
   })
+  const { board } = useGame()
+  const cell_stack = board[row][col]
+  console.log(cell_stack)
 
   return (
     <div
@@ -151,26 +140,39 @@ const Cell = ({
         },
       )}
     >
-      {children}
+      {cell_stack.length > 0 && (
+        <Piece
+          player={cell_stack[0].player}
+          size={cell_stack[0].size}
+          stack_number={cell_stack[0].stack_number}
+          location={[row, col]}
+        />
+      )}
     </div>
   )
 }
 
 const Game = () => {
-  const game_state = useGame()
-  const game_dispatch = useGameDispatch()
-  console.log(game_state)
-
-  useEffect(() => {
-    console.log('game state changed')
-    game_dispatch({ type: 'MOVE', payload: [[1, 2]] })
-  }, [])
+  const dispatch = useGameDispatch()
 
   const handleDragEnd = (e: DragEndEvent) => {
     const { over, active } = e
     console.log('drag end')
-    console.log(over)
-    console.log(active)
+    console.log('[over]', over)
+    console.log('[active]', active)
+    if (over && active) {
+      const { player, location, stack_number } = active.data.current
+      const { row, col } = over.data.current
+      dispatch({
+        type: 'MOVE',
+        payload: {
+          player,
+          stack_number,
+          from: location,
+          to: [row, col],
+        },
+      })
+    }
   }
 
   return (
