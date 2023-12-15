@@ -1,4 +1,12 @@
-import { Board, GameState, GameAction, Stack, Player, Size } from '@/types'
+import {
+  Board,
+  GameState,
+  GameAction,
+  Stack,
+  Player,
+  Size,
+  PossibleMoves,
+} from '@/types'
 import { isLegalMove, switch_turn } from '@/utils'
 import React from 'react'
 import { createContext } from 'react'
@@ -17,15 +25,30 @@ const inventory_initial_state: Array<Array<Stack>> = [
       player: p,
       size: s,
       stack_number: i,
-      location: [-1, -1],
+      location: [-1, i],
     })),
   ),
+)
+
+const grid_indecies = [0, 1, 2, 3]
+  .map((i) => [0, 1, 2, 3].map((j) => [i, j]))
+  .flat(1)
+
+console.log('grid', grid_indecies)
+
+const possible_moves_initial_state: Array<PossibleMoves> = [0, 1, 2].map(
+  (i) => ({
+    id: `piece-${i}-0-3`,
+    from: [-1, i],
+    array_of_moves: grid_indecies,
+  }),
 )
 
 const game_initial_state: GameState = {
   board: board_initial_state,
   inventories: [inventory_initial_state[0], inventory_initial_state[1]],
   turn: Player.Red,
+  possible_moves: possible_moves_initial_state,
 }
 
 export const GameStateContext = createContext({} as GameState)
