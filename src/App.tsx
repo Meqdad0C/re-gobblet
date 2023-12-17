@@ -9,6 +9,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { Player, Size, Piece_t } from '@/types'
 import { useGame, useGameDispatch } from '@/hooks/game-hooks'
+import { WinnerDialog } from './components/winner-dialog'
 
 /**
  * Piece has a size and a color
@@ -148,14 +149,14 @@ const Cell = ({ row, col }: { row: number; col: number }) => {
 
 const Game = () => {
   const dispatch = useGameDispatch()
-  const { turn } = useGame()
   const state = useGame()
-  console.log('[game state]', state);
-  
+  console.log('[game state]', state)
 
   const handleDragEnd = (e: DragEndEvent) => {
     const { over, active } = e
-    if (active.data.current!.player !== turn) return
+    const dont_do_the_drag =
+      active.data.current!.player !== state.turn || state.game_over
+    if (dont_do_the_drag) return
     if (over && active) {
       const { player, location, stack_number, size } = active.data
         .current as Piece_t
@@ -190,6 +191,7 @@ export default function App() {
       <main className='container flex min-h-screen flex-col items-center justify-center gap-2'>
         <div className='fixed right-5 top-5'>
           <ModeToggle />
+          <WinnerDialog />
         </div>
         <h1 className='text-center text-5xl font-bold'>Gobblet!</h1>
         <Game />

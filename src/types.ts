@@ -23,6 +23,8 @@ export interface GameState {
   inventories: [Array<Stack>, Array<Stack>]
   turn: Player
   possible_moves: Array<PossibleMovesForPiece>
+  winner: Player | null
+  game_over: boolean
 }
 
 export interface PossibleMovesForPiece {
@@ -41,4 +43,5 @@ export type Move = {
     size: Size
   }
 }
-export type GameAction = Move
+
+export type GameAction = Move | { type: 'RESTART' }

@@ -31,4 +31,6 @@ export const game_initial_state: GameState = {
   inventories: [inventory_initial_state[0], inventory_initial_state[1]],
   turn: Player.Red,
   possible_moves: possible_moves_initial_state,
+  winner: null,
+  game_over: false,
 }
