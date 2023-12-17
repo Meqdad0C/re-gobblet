@@ -3,7 +3,7 @@ import {
   GameState,
   GameAction,
 } from '@/types'
-import { getPossibleMoves, isLegalMove, switch_turn } from '@/utils'
+import { getPossibleMoves, isLegalMove, is_winning_state, switch_turn } from '@/utils'
 import React from 'react'
 import { createContext } from 'react'
 import { useImmerReducer } from 'use-immer'
@@ -55,7 +55,8 @@ const doMove = (state: GameState, action: GameAction) => {
   to_cell.push(piece)
 
   state.turn = switch_turn(state.turn)
-  getPossibleMoves(state)
+  state.possible_moves = getPossibleMoves(state)
+  console.log("Opponent won?", is_winning_state(state))
   return state
 }
 

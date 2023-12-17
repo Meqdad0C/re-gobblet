@@ -123,7 +123,7 @@ export const getPossibleMoves = (state: GameState) => {
     })
   })
 
-  console.log('Bedonzy san', possible_moves)
+  return possible_moves
 }
 
 const find_three_in_a_row = (state: GameState) => {
@@ -220,4 +220,121 @@ const find_three_in_a_row = (state: GameState) => {
   }
 
   return result
+}
+
+/**
+ * 
+ * @param state - the current game state
+ * @returns true if opponent has four in a row, false otherwise
+ */
+const find_four_in_a_row = (state: GameState) => {
+  const opponent = switch_turn(state.turn)
+  const board = state.board
+
+  // Check horizontal
+  for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 1; j++) {
+      if (
+        board[i][j].length > 0 &&
+        board[i][j + 1].length > 0 &&
+        board[i][j + 2].length > 0 &&
+        board[i][j + 3].length > 0
+      ) {
+        const piece1 = board[i][j][board[i][j].length - 1]
+        const piece2 = board[i][j + 1][board[i][j + 1].length - 1]
+        const piece3 = board[i][j + 2][board[i][j + 2].length - 1]
+        const piece4 = board[i][j + 3][board[i][j + 3].length - 1]
+        if (
+          piece1.player === opponent &&
+          piece2.player === opponent &&
+          piece3.player === opponent &&
+          piece4.player === opponent
+        ) {
+          return true
+        }
+      }
+    }
+  }
+
+  // Check vertical
+  for (let i = 0; i < 1; i++) {
+    for (let j = 0; j < 4; j++) {
+      if (
+        board[i][j].length > 0 &&
+        board[i + 1][j].length > 0 &&
+        board[i + 2][j].length > 0 &&
+        board[i + 3][j].length > 0
+      ) {
+        const piece1 = board[i][j][board[i][j].length - 1]
+        const piece2 = board[i + 1][j][board[i + 1][j].length - 1]
+        const piece3 = board[i + 2][j][board[i + 2][j].length - 1]
+        const piece4 = board[i + 3][j][board[i + 3][j].length - 1]
+        if (
+          piece1.player === opponent &&
+          piece2.player === opponent &&
+          piece3.player === opponent &&
+          piece4.player === opponent
+        ) {
+          return true
+        }
+      }
+    }
+  }
+
+  // Check diagonal
+  for (let i = 0; i < 1; i++) {
+    for (let j = 0; j < 1; j++) {
+      if (
+        board[i][j].length > 0 &&
+        board[i + 1][j + 1].length > 0 &&
+        board[i + 2][j + 2].length > 0 &&
+        board[i + 3][j + 3].length > 0
+      ) {
+        const piece1 = board[i][j][board[i][j].length - 1]
+        const piece2 = board[i + 1][j + 1][board[i + 1][j + 1].length - 1]
+        const piece3 = board[i + 2][j + 2][board[i + 2][j + 2].length - 1]
+        const piece4 = board[i + 3][j + 3][board[i + 3][j + 3].length - 1]
+        if (
+          piece1.player === opponent &&
+          piece2.player === opponent &&
+          piece3.player === opponent &&
+          piece4.player === opponent
+        ) {
+          return true
+        }
+      }
+    }
+  }
+
+  // Check diagonal
+  for (let i = 0; i < 1; i++) {
+    for (let j = 3; j < 4; j++) {
+      if (
+        board[i][j].length > 0 &&
+        board[i + 1][j - 1].length > 0 &&
+        board[i + 2][j - 2].length > 0 &&
+        board[i + 3][j - 3].length > 0
+      ) {
+        const piece1 = board[i][j][board[i][j].length - 1]
+        const piece2 = board[i + 1][j - 1][board[i + 1][j - 1].length - 1]
+        const piece3 = board[i + 2][j - 2][board[i + 2][j - 2].length - 1]
+        const piece4 = board[i + 3][j - 3][board[i + 3][j - 3].length - 1]
+        if (
+          piece1.player === opponent &&
+          piece2.player === opponent &&
+          piece3.player === opponent &&
+          piece4.player === opponent
+        ) {
+          return true
+        }
+      }
+    }
+  }
+
+  return false
+}
+
+export const is_winning_state = (state: GameState): boolean => {
+  const has_oppoent_won = find_four_in_a_row(state)
+  return has_oppoent_won
 }
