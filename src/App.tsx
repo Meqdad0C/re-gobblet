@@ -33,7 +33,7 @@ const Piece = ({ player, size, stack_number, location }: Piece_t) => {
       {...listeners}
       style={style}
       className={cn(
-        ['absolute rounded-full border-2 border-black'],
+        ['absolute rounded-full border-2 border-black dark:border-white'],
         {
           'bg-red-500': player === Player.Red,
           'bg-blue-500': player === Player.Blue,
@@ -187,7 +187,7 @@ const Game = () => {
 export default function App() {
   return (
     <>
-      <main className='container flex min-h-screen flex-col items-center justify-center gap-2 bg-gray-100 dark:bg-gray-800'>
+      <main className='container flex min-h-screen flex-col items-center justify-center gap-2'>
         <div className='fixed right-5 top-5'>
           <ModeToggle />
         </div>
