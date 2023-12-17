@@ -1,55 +1,12 @@
+import { game_initial_state } from '@/constants'
 import {
-  Board,
   GameState,
   GameAction,
-  Stack,
-  Player,
-  Size,
-  PossibleMoves,
 } from '@/types'
 import { getPossibleMoves, isLegalMove, switch_turn } from '@/utils'
 import React from 'react'
 import { createContext } from 'react'
 import { useImmerReducer } from 'use-immer'
-
-const board_initial_state: Board = Array.from({ length: 4 }, () =>
-  Array(4).fill([]),
-)
-
-const inventory_initial_state: Array<Array<Stack>> = [
-  Player.Red,
-  Player.Blue,
-].map((p) =>
-  [0, 1, 2].map((i) =>
-    [Size.Small, Size.Medium, Size.Large, Size.XLarge].map((s) => ({
-      player: p,
-      size: s,
-      stack_number: i,
-      location: [-1, i],
-    })),
-  ),
-)
-
-const grid_indecies = [0, 1, 2, 3]
-  .map((i) => [0, 1, 2, 3].map((j) => [i, j]))
-  .flat(1)
-
-console.log('grid', grid_indecies)
-
-const possible_moves_initial_state: Array<PossibleMoves> = [0, 1, 2].map(
-  (i) => ({
-    id: `piece-${i}-0-3`,
-    from: [-1, i],
-    array_of_moves: grid_indecies,
-  }),
-)
-
-const game_initial_state: GameState = {
-  board: board_initial_state,
-  inventories: [inventory_initial_state[0], inventory_initial_state[1]],
-  turn: Player.Red,
-  possible_moves: possible_moves_initial_state,
-}
 
 export const GameStateContext = createContext({} as GameState)
 export const GameDispatchContext = createContext(
@@ -80,7 +37,7 @@ const gameReducer = (state: GameState, action: GameAction) => {
 
 const doMove = (state: GameState, action: GameAction) => {
   const { player, stack_number, from, to, size } = action.payload
-  console.log('[doMove]', player, stack_number, from, to, size)
+  // console.log('[doMove]', player, stack_number, from, to, size)
 
   if (!isLegalMove(state, action)) {
     console.log('[doMove] illegal move')
@@ -94,6 +51,7 @@ const doMove = (state: GameState, action: GameAction) => {
   const to_cell = state.board[to[0]][to[1]]
 
   const piece = from_stack.pop()!
+  piece.location = to
   to_cell.push(piece)
 
   state.turn = switch_turn(state.turn)

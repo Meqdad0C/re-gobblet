@@ -1,4 +1,10 @@
-import { Board, GameState, Move, Piece_t, Player, PossibleMoves } from '@/types'
+import {
+  GameState,
+  Move,
+  Piece_t,
+  Player,
+  PossibleMovesForPiece,
+} from '@/types'
 
 export const switch_turn = (turn: Player): Player => {
   return turn === Player.Red ? Player.Blue : Player.Red
@@ -20,59 +26,102 @@ export const isLegalMove = (state: GameState, move: Move): boolean => {
     return true
   }
 
-  if (isMoveFromInventory) {
+  const to_piece = to_stack[to_stack.length - 1]
+  const piece = from_stack[from_stack.length - 1]
+
+  if (isMoveFromInventory && to_piece.player !== player) {
     const oneToComplete = find_three_in_a_row(state)
-    const move_if_to_one_to_complete = oneToComplete.filter(
+    const move_if_to_one_to_complete = oneToComplete.find(
       (location) => location[0] === to[0] && location[1] === to[1],
     )
-    if (move_if_to_one_to_complete.length === 0) {
+
+    if (move_if_to_one_to_complete === undefined) {
       return false
     }
   }
 
-  const to_piece = to_stack[to_stack.length - 1]
-  const piece = from_stack[from_stack.length - 1]
+
   return is_a_bigger_than_b(piece, to_piece)
 }
-
 
 // Loop once over grid -> save pieces location & empty spaces -> foreach piece check if it can move over other pieces
 export const getPossibleMoves = (state: GameState) => {
   const player = state.turn
+  const possible_moves: Array<PossibleMovesForPiece> = []
+
+  // Loop once over grid -> save pieces location & empty spaces
+  const player_grid_pieces: Array<Piece_t> = []
+  const all_pieces_on_grid: Array<Piece_t> = []
   const inventory = state.inventories[player]
+  const empty_spaces: Array<number[]> = []
 
-  const possible_moves: Array<PossibleMoves> = []
+  state.board.forEach((row, i) => {
+    row.forEach((stack, j) => {
+      if (stack.length > 0) {
+        if (stack[stack.length - 1].player === player) {
+          player_grid_pieces.push(stack[stack.length - 1])
+        } 
+        all_pieces_on_grid.push(stack[stack.length - 1])
+      } else {
+        empty_spaces.push([i, j])
+      }
+    })
+  })
 
-  inventory.forEach((stack, stack_number) => {
+  // foreach piece check if it can move over other pieces
+  player_grid_pieces.forEach((player_piece) => {
+    const possible_moves_for_piece: Array<number[]> = []
+    all_pieces_on_grid.forEach((piece_on_grid) => {
+      const move: Move = {
+        type: 'MOVE',
+        payload: {
+          player: player_piece.player,
+          stack_number: player_piece.stack_number,
+          from: player_piece.location,
+          to: piece_on_grid.location,
+          size: player_piece.size,
+        },
+      }
+      if (isLegalMove(state, move)) {
+        possible_moves_for_piece.push(piece_on_grid.location)
+      }
+    })
+    possible_moves.push({
+      id: `piece-${player_piece.stack_number}-${player_piece.player}-${player_piece.size}`,
+      from: player_piece.location,
+      array_of_moves: possible_moves_for_piece.concat(empty_spaces),
+    })
+  })
+
+  // check inventory
+  inventory.forEach((stack, i) => {
     if (stack.length === 0) {
       return
     }
-    const piece = stack[stack.length - 1]
-    const { size } = piece
-    const id = `piece-${stack_number}-${player}-${size}` as const
-    const array_of_moves: Array<number[]> = []
+    const inventory_piece = stack[stack.length - 1]
+    const possible_moves_for_piece: Array<number[]> = []
 
-    state.board.forEach((row, row_index) => {
-      row.forEach((stack, stack_index) => {
-        if (stack.length === 0) {
-          array_of_moves.push([row_index, stack_index])
-          return
-        }
-      })
-    })
-
-    const oneToComplete = find_three_in_a_row(state)
-    oneToComplete.forEach((location) => {
-      const s = state.board[location[0]][location[1]]
-      const p = s[s.length - 1]
-      if (is_a_bigger_than_b(piece, p)) {
-        array_of_moves.push(location)
+    all_pieces_on_grid.forEach((piece_on_grid) => {
+      const move: Move = {
+        type: 'MOVE',
+        payload: {
+          player: inventory_piece.player,
+          stack_number: inventory_piece.stack_number,
+          from: inventory_piece.location,
+          to: piece_on_grid.location,
+          size: inventory_piece.size,
+        },
+      }
+      if (isLegalMove(state, move)) {
+        possible_moves_for_piece.push(piece_on_grid.location)
       }
     })
-
-    possible_moves.push({ id, from: [-1, stack_number], array_of_moves })
+    possible_moves.push({
+      id: `piece-${i}-${player}-${inventory_piece.size}`,
+      from: [-1, i],
+      array_of_moves: possible_moves_for_piece.concat(empty_spaces),
+    })
   })
-
 
   console.log('Bedonzy san', possible_moves)
 }

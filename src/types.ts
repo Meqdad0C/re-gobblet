@@ -22,10 +22,10 @@ export interface GameState {
   board: Board
   inventories: [Array<Stack>, Array<Stack>]
   turn: Player
-  possible_moves: Array<PossibleMoves>
+  possible_moves: Array<PossibleMovesForPiece>
 }
 
-export interface PossibleMoves {
+export interface PossibleMovesForPiece {
   id: `piece-${number}-${Player}-${Size}` // `piece-${stack_number}-${player}-${size}`
   from: number[]
   array_of_moves: Array<number[]>

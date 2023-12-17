@@ -152,7 +152,7 @@ const Game = () => {
 
   const handleDragEnd = (e: DragEndEvent) => {
     const { over, active } = e
-    if (active.data.current.player !== turn) return
+    if (active.data.current!.player !== turn) return
     if (over && active) {
       const { player, location, stack_number, size } = active.data
         .current as Piece_t
@@ -173,9 +173,9 @@ const Game = () => {
   return (
     <div className='flex flex-col items-center justify-between gap-2'>
       <DndContext onDragEnd={handleDragEnd}>
-        <Inventory player={Player.Blue} />
-        <Board />
         <Inventory player={Player.Red} />
+        <Board />
+        <Inventory player={Player.Blue} />
       </DndContext>
     </div>
   )
