@@ -39,10 +39,10 @@ const Piece = ({ player, size, stack_number, location }: Piece_t) => {
           'bg-blue-500': player === Player.Blue,
         },
         {
-          'h-14 w-14': size === Size.Small,
-          'h-20 w-20': size === Size.Medium,
-          'h-[5.5rem] w-[5.5rem]': size === Size.Large,
-          'h-[6.5rem] w-[6.5rem]': size === Size.XLarge,
+          'h-8 w-8': size === Size.Small,
+          'h-12 w-12': size === Size.Medium,
+          'h-16 w-16': size === Size.Large,
+          'h-24 w-24': size === Size.XLarge,
         },
         {
           'hover:bg-red-400': player === Player.Red,
