@@ -79,7 +79,6 @@ export const getPossibleMoves = (state: GameState) => {
           stack_number: player_piece.stack_number,
           from: player_piece.location,
           to: piece_on_grid.location,
-          size: player_piece.size,
         },
       }
       if (isLegalMove(state, move)) {
@@ -109,7 +108,6 @@ export const getPossibleMoves = (state: GameState) => {
           stack_number: inventory_piece.stack_number,
           from: inventory_piece.location,
           to: piece_on_grid.location,
-          size: inventory_piece.size,
         },
       }
       if (isLegalMove(state, move)) {

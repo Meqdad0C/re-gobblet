@@ -40,7 +40,7 @@ const gameReducer = (state: GameState, action: GameAction) => {
 }
 
 const doMove = (state: GameState, action: Move) => {
-  const { player, stack_number, from, to, size } = action.payload
+  const { player, stack_number, from, to } = action.payload
   // console.log('[doMove]', player, stack_number, from, to, size)
 
   if (!isLegalMove(state, action)) {

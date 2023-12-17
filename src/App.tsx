@@ -158,7 +158,7 @@ const Game = () => {
       active.data.current!.player !== state.turn || state.game_over
     if (dont_do_the_drag) return
     if (over && active) {
-      const { player, location, stack_number, size } = active.data
+      const { player, location, stack_number } = active.data
         .current as Piece_t
       const { row, col } = over.data.current as { row: number; col: number }
       dispatch({
@@ -166,7 +166,6 @@ const Game = () => {
         payload: {
           player,
           stack_number,
-          size,
           from: location,
           to: [row, col],
         },

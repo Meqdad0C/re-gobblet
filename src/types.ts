@@ -40,7 +40,6 @@ export type Move = {
     stack_number: number
     from: number[]
     to: number[]
-    size: Size
   }
 }
 
