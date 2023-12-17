@@ -7,7 +7,7 @@ import {
   Size,
   PossibleMoves,
 } from '@/types'
-import { isLegalMove, switch_turn } from '@/utils'
+import { getPossibleMoves, isLegalMove, switch_turn } from '@/utils'
 import React from 'react'
 import { createContext } from 'react'
 import { useImmerReducer } from 'use-immer'
@@ -97,6 +97,7 @@ const doMove = (state: GameState, action: GameAction) => {
   to_cell.push(piece)
 
   state.turn = switch_turn(state.turn)
+  getPossibleMoves(state)
   return state
 }
 

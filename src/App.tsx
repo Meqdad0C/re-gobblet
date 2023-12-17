@@ -16,7 +16,6 @@ import { useGame, useGameDispatch } from '@/hooks/game-hooks'
  * Size is either small, medium, or large
  */
 const Piece = ({ player, size, stack_number, location }: Piece_t) => {
-  const { turn } = useGame()
   const ref_data: Piece_t = { player, size, stack_number, location }
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: `piece-${stack_number}-${player}-${size}`,
@@ -30,8 +29,8 @@ const Piece = ({ player, size, stack_number, location }: Piece_t) => {
   return (
     <div
       ref={setNodeRef}
-      {...(player === turn ? attributes : null)}
-      {...(player === turn ? listeners : null)}
+      {...attributes}
+      {...listeners}
       style={style}
       className={cn(
         ['absolute rounded-full border-2 border-black'],
@@ -149,11 +148,14 @@ const Cell = ({ row, col }: { row: number; col: number }) => {
 
 const Game = () => {
   const dispatch = useGameDispatch()
+  const { turn } = useGame()
 
   const handleDragEnd = (e: DragEndEvent) => {
     const { over, active } = e
+    if (active.data.current.player !== turn) return
     if (over && active) {
-      const { player, location, stack_number, size } = active.data.current as Piece_t
+      const { player, location, stack_number, size } = active.data
+        .current as Piece_t
       const { row, col } = over.data.current as { row: number; col: number }
       dispatch({
         type: 'MOVE',
