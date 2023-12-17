@@ -149,6 +149,9 @@ const Cell = ({ row, col }: { row: number; col: number }) => {
 const Game = () => {
   const dispatch = useGameDispatch()
   const { turn } = useGame()
+  const state = useGame()
+  console.log('[game state]', state);
+  
 
   const handleDragEnd = (e: DragEndEvent) => {
     const { over, active } = e
@@ -184,11 +187,11 @@ const Game = () => {
 export default function App() {
   return (
     <>
-      <main className='container flex min-h-screen flex-col items-center justify-center gap-2'>
+      <main className='container flex min-h-screen flex-col items-center justify-center gap-2 bg-gray-100 dark:bg-gray-800'>
         <div className='fixed right-5 top-5'>
           <ModeToggle />
         </div>
-        <h1 className='text-center text-5xl font-bold'>Gobblet</h1>
+        <h1 className='text-center text-5xl font-bold'>Gobblet!</h1>
         <Game />
       </main>
     </>
