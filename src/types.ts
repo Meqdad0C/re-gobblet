@@ -67,5 +67,4 @@ export type GameAction =
   | Move
   | Restart
   | { type: 'SHOW_BOARD' }
-  | { type: 'START' }
   | { type: 'END'}

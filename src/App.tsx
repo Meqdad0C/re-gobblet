@@ -6,7 +6,7 @@ import {
   DragEndEvent,
 } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
-import { Player, Size, Piece_t } from '@/types'
+import { Player, Size, Piece_t, Move } from '@/types'
 import { useGame, useGameDispatch, useOptions } from '@/hooks/game-hooks'
 import {
   Card,
@@ -20,6 +20,8 @@ import { Separator } from './components/ui/separator'
 import { Button } from './components/ui/button'
 import { MainMenu } from './components/MainMenu'
 import { WinnerDialog } from './components/winner-dialog'
+import { useEffect } from 'react'
+import { getPossibleMoves } from './utils'
 
 /**
  * Piece has a size and a color
@@ -160,7 +162,35 @@ const Cell = ({ row, col }: { row: number; col: number }) => {
 const Game = () => {
   const dispatch = useGameDispatch()
   const state = useGame()
+  const [options] = useOptions()
+
   console.log('[game state]', state)
+  useEffect(() => {
+    if (options.game_type === 'PvAI' && state.turn === Player.Blue) {
+      console.log('[game] AI move')
+      const possible_moves = getPossibleMoves(state)
+      console.log(possible_moves)
+      const random_piece =
+        possible_moves[Math.floor(Math.random() * possible_moves.length)]
+      console.log(random_piece)
+      const random_idx =
+        random_piece.array_of_moves[
+          Math.floor(Math.random() * random_piece.array_of_moves.length)
+        ]
+      console.log(random_idx)
+      const random_move: Move = {
+        type: 'MOVE',
+        payload: {
+          player: Player.Blue,
+          stack_number: Number(random_piece.id.split('-')[1]),
+          from: random_piece.from,
+          to: random_idx,
+        },
+      }
+      console.log('AI CHOSE', random_move)
+      dispatch(random_move)
+    }
+  }, [state.turn])
 
   const handleDragEnd = (e: DragEndEvent) => {
     const { over, active } = e
@@ -246,7 +276,7 @@ const SideBar = () => {
           {state.game_started !== true ? (
             <Button
               className='bg-green-500 hover:bg-green-600'
-              onClick={() => dispatch({ type: 'START' })}
+              onClick={() => dispatch({ type: 'RESTART' })}
             >
               Start Game
             </Button>
@@ -261,11 +291,7 @@ const SideBar = () => {
           {state.game_started !== true ? (
             <MainMenu />
           ) : (
-            <Button
-              onClick={() => dispatch({ type: 'END' })}
-            >
-              End Game
-            </Button>
+            <Button onClick={() => dispatch({ type: 'END' })}>End Game</Button>
           )}
         </CardFooter>
       </Card>

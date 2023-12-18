@@ -38,8 +38,6 @@ const gameReducer = (state: GameState, action: GameAction) => {
       return doRestart()
     case 'SHOW_BOARD':
       return show_board(state)
-    case 'START':
-      return start_game(state)
     case 'END':
       return end_game()
   }
@@ -76,10 +74,6 @@ const doRestart = () => {
   const state = game_initial_state
   const new_state = { ...state, game_started: true }
   return new_state
-}
-
-const start_game = () => {
-  return doRestart()
 }
 
 const show_board = (state: GameState) => {
