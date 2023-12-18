@@ -6,6 +6,9 @@ import {
   PossibleMovesForPiece,
 } from '@/types'
 
+import cloneDeep from 'lodash.clonedeep'
+import { doMove } from './reducers/game-reducer'
+
 export const switch_turn = (turn: Player): Player => {
   return turn === Player.Red ? Player.Blue : Player.Red
 }
@@ -29,8 +32,8 @@ export const isLegalMove = (state: GameState, move: Move): boolean => {
   const to_piece = to_stack[to_stack.length - 1]
   const piece = from_stack[from_stack.length - 1]
 
-  if (isMoveFromInventory  ) {
-    if(to_piece.player === player){
+  if (isMoveFromInventory) {
+    if (to_piece.player === player) {
       return false
     }
     const oneToComplete = find_three_in_a_row(state)
@@ -42,7 +45,6 @@ export const isLegalMove = (state: GameState, move: Move): boolean => {
       return false
     }
   }
-
 
   return is_a_bigger_than_b(piece, to_piece)
 }
@@ -63,7 +65,7 @@ export const getPossibleMoves = (state: GameState) => {
       if (stack.length > 0) {
         if (stack[stack.length - 1].player === player) {
           player_grid_pieces.push(stack[stack.length - 1])
-        } 
+        }
         all_pieces_on_grid.push(stack[stack.length - 1])
       } else {
         empty_spaces.push([i, j])
@@ -224,7 +226,7 @@ const find_three_in_a_row = (state: GameState) => {
 }
 
 /**
- * 
+ *
  * @param state - the current game state
  * @returns true if opponent has four in a row, false otherwise
  */
@@ -338,4 +340,16 @@ const find_four_in_a_row = (state: GameState) => {
 export const is_winning_state = (state: GameState): boolean => {
   const has_player_won = find_four_in_a_row(state)
   return has_player_won
+}
+
+/**
+ *
+ * @param state - the current game state
+ * @param move - the move to be made
+ * @returns the new game state after the move has been made
+ */
+export const getSuccesorState = (state: GameState, move: Move) => {
+  const cloned_state = cloneDeep(state)
+  const new_state = doMove(cloned_state, move)
+  return new_state
 }

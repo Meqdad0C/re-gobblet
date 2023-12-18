@@ -1,7 +1,7 @@
 import ReactDOM from 'react-dom/client'
 import App from '@/App.tsx'
 import './index.css'
-import GameProvider from './contexts/game-context.tsx'
+import GameProvider from './contexts/GameProvider.tsx'
 import OptionsProvider from './contexts/options-context.tsx'
 import React from 'react'
 

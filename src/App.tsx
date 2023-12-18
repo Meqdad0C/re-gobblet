@@ -10,7 +10,7 @@ import { Player, Size, Piece_t, Move } from '@/types'
 import { useGame, useGameDispatch, useOptions } from '@/hooks/game-hooks'
 import { WinnerDialog } from './components/winner-dialog'
 import { useEffect } from 'react'
-import { getPossibleMoves } from './utils'
+import { getPossibleMoves, getSuccesorState } from './game-utils'
 import { SideBar } from './components/SideBar'
 
 /**
@@ -155,8 +155,74 @@ const Game = () => {
   const [options] = useOptions()
 
   console.log('[game state]', state)
+
   useEffect(() => {
-    if (options.game_type === 'PvAI' && state.turn === Player.Blue) {
+    if (
+      options.game_type === 'PvAI' &&
+      state.turn === Player.Blue &&
+      state.game_started &&
+      !state.game_over
+    ) {
+      console.log('[game] AI move')
+      const possible_moves = getPossibleMoves(state)
+      console.log(possible_moves)
+      const random_piece =
+        possible_moves[Math.floor(Math.random() * possible_moves.length)]
+      console.log(random_piece)
+      const random_idx =
+        random_piece.array_of_moves[
+          Math.floor(Math.random() * random_piece.array_of_moves.length)
+        ]
+      console.log(random_idx)
+      const random_move: Move = {
+        type: 'MOVE',
+        payload: {
+          player: Player.Blue,
+          stack_number: Number(random_piece.id.split('-')[1]),
+          from: random_piece.from,
+          to: random_idx,
+        },
+      }
+
+      console.log('AI CHOSE', random_move)
+      console.log("NEW STATE", getSuccesorState(state, random_move))
+      dispatch(random_move)
+    }
+    if (
+      options.game_type === 'AIvAI' &&
+      state.turn === Player.Red &&
+      state.game_started &&
+      !state.game_over
+    ) {
+      console.log('[game] AI move')
+      const possible_moves = getPossibleMoves(state)
+      console.log(possible_moves)
+      const random_piece =
+        possible_moves[Math.floor(Math.random() * possible_moves.length)]
+      console.log(random_piece)
+      const random_idx =
+        random_piece.array_of_moves[
+          Math.floor(Math.random() * random_piece.array_of_moves.length)
+        ]
+      console.log(random_idx)
+      const random_move: Move = {
+        type: 'MOVE',
+        payload: {
+          player: Player.Red,
+          stack_number: Number(random_piece.id.split('-')[1]),
+          from: random_piece.from,
+          to: random_idx,
+        },
+      }
+      console.log('AI CHOSE', random_move)
+      dispatch(random_move)
+    }
+    if (
+      options.game_type === 'AIvAI' &&
+      state.turn === Player.Blue &&
+      state.game_started &&
+      !state.game_over
+    ) {
       console.log('[game] AI move')
       const possible_moves = getPossibleMoves(state)
       console.log(possible_moves)
@@ -180,7 +246,7 @@ const Game = () => {
       console.log('AI CHOSE', random_move)
       dispatch(random_move)
     }
-  }, [state.turn])
+  }, [state.game_started, state.turn, state.game_over])
 
   const handleDragEnd = (e: DragEndEvent) => {
     const { over, active } = e
