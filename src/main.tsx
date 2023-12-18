@@ -6,9 +6,11 @@ import OptionsProvider from './contexts/options-context.tsx'
 import React from 'react'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
     <GameProvider>
       <OptionsProvider>
         <App />
       </OptionsProvider>
     </GameProvider>
+  </React.StrictMode>,
 )
