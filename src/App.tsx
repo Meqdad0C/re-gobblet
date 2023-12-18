@@ -9,7 +9,17 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { Player, Size, Piece_t } from '@/types'
 import { useGame, useGameDispatch } from '@/hooks/game-hooks'
-import { WinnerDialog } from './components/winner-dialog'
+import { WinnerDialog } from '@/components/winner-dialog'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Separator } from './components/ui/separator'
+import { Button } from './components/ui/button'
 
 /**
  * Piece has a size and a color
@@ -34,7 +44,7 @@ const Piece = ({ player, size, stack_number, location }: Piece_t) => {
       {...listeners}
       style={style}
       className={cn(
-        ['absolute rounded-full border-2 border-black dark:border-white'],
+        ['absolute rounded-full border-2 border-black '],
         {
           'bg-red-500': player === Player.Red,
           'bg-blue-500': player === Player.Blue,
@@ -72,7 +82,7 @@ const Inventory = ({ player }: { player: Player }) => {
   const inventory = game_state.inventories[player]
 
   return (
-    <div className='grid h-40 w-full grid-cols-3 rounded-2xl border-2 border-black dark:border-white'>
+    <div className='grid h-40 w-full grid-cols-3 rounded-2xl border-2 border-black bg-gradient-to-r from-red-300 to-blue-300 dark:border-white'>
       {inventory.map((stack, i) => (
         <div key={i} className='grid items-center justify-items-center'>
           {stack.map((p, idx) => (
@@ -158,8 +168,7 @@ const Game = () => {
       active.data.current!.player !== state.turn || state.game_over
     if (dont_do_the_drag) return
     if (over && active) {
-      const { player, location, stack_number } = active.data
-        .current as Piece_t
+      const { player, location, stack_number } = active.data.current as Piece_t
       const { row, col } = over.data.current as { row: number; col: number }
       dispatch({
         type: 'MOVE',
@@ -184,6 +193,40 @@ const Game = () => {
   )
 }
 
+const SideBar = () => {
+  const state = useGame()
+  const dispatch = useGameDispatch()
+
+  return (
+    <Card
+      className='flex flex-col gap-2 rounded-2xl border-2 border-black bg-gradient-to-r
+     p-2 dark:border-white md:h-96 md:w-96'
+    >
+      <CardHeader>
+        <CardTitle className='text-center text-2xl font-bold'>
+          Game Info
+        </CardTitle>
+        <Separator className='border-2 border-black dark:border-white' />
+      </CardHeader>
+      <CardContent>
+        <p className='text-center'>
+          <span className='text-lg font-bold'>Turn:</span> Player{' '}
+          {state.turn + 1} {state.turn === Player.Red ? '🔴' : '🔵'}
+        </p>
+      </CardContent>
+      <CardFooter className='flex justify-between gap-2 mt-auto'>
+        <Button
+          variant='destructive'
+          onClick={() => dispatch({ type: 'RESTART' })}
+        >
+          Restart Game
+        </Button>
+        <Button className='bg-violet-500 hover:bg-violet-600'>Main Menu</Button>
+      </CardFooter>
+    </Card>
+  )
+}
+
 export default function App() {
   return (
     <>
@@ -193,7 +236,10 @@ export default function App() {
           <WinnerDialog />
         </div>
         <h1 className='text-center text-5xl font-bold'>Gobblet!</h1>
-        <Game />
+        <div className='flex flex-col gap-2 md:flex-row'>
+          <Game />
+          <SideBar />
+        </div>
       </main>
     </>
   )
