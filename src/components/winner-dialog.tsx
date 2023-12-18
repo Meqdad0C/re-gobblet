@@ -9,16 +9,14 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { useGameDispatch, useGame } from '@/hooks/game-hooks'
-import { useState } from 'react'
 
 export function WinnerDialog() {
-  const [open, setOpen] = useState(true)
   const state = useGame()
   const dispatch = useGameDispatch()
 
   return (
     // <AlertDialog open={state.winner !== null && open}>
-    <AlertDialog open={state.game_over! && open}>
+    <AlertDialog open={state.game_over! && state.game_started}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
@@ -29,19 +27,16 @@ export function WinnerDialog() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogAction className='bg-violet-500 hover:bg-violet-600'>
-            Go to Main Menu
-          </AlertDialogAction>
-          <AlertDialogCancel
+          <AlertDialogAction
+            className='bg-violet-500 hover:bg-violet-600'
             onClick={() => {
-              setOpen(false)
+              dispatch({ type: 'SHOW_BOARD' })
             }}
           >
             Show me the board
-          </AlertDialogCancel>
+          </AlertDialogAction>
           <AlertDialogAction
             onClick={() => {
-              setOpen(false)
               dispatch({ type: 'RESTART' })
             }}
           >

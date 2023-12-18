@@ -1,4 +1,12 @@
-import { Board, Stack, Player, Size, PossibleMovesForPiece, GameState } from '@/types'
+import {
+  Board,
+  Stack,
+  Player,
+  Size,
+  PossibleMovesForPiece,
+  GameState,
+  GameOptions,
+} from '@/types'
 
 const board_initial_state: Board = Array.from({ length: 4 }, () =>
   Array(4).fill([]),
@@ -19,13 +27,21 @@ const inventory_initial_state: Array<Array<Stack>> = [
 const grid_indecies = [0, 1, 2, 3]
   .map((i) => [0, 1, 2, 3].map((j) => [i, j]))
   .flat(1)
-const possible_moves_initial_state: Array<PossibleMovesForPiece> = [0, 1, 2].map(
-  (i) => ({
-    id: `piece-${i}-0-3`,
-    from: [-1, i],
-    array_of_moves: grid_indecies,
-  }),
-)
+const possible_moves_initial_state: Array<PossibleMovesForPiece> = [
+  0, 1, 2,
+].map((i) => ({
+  id: `piece-${i}-0-3`,
+  from: [-1, i],
+  array_of_moves: grid_indecies,
+}))
+
+export const game_options_initial_state: GameOptions = {
+  game_type: 'PvP',
+  algorithm_1: 'Random',
+  algorithm_2: 'Random',
+  depth_1: 1,
+  depth_2: 1,
+}
 export const game_initial_state: GameState = {
   board: board_initial_state,
   inventories: [inventory_initial_state[0], inventory_initial_state[1]],
@@ -33,4 +49,6 @@ export const game_initial_state: GameState = {
   possible_moves: possible_moves_initial_state,
   winner: null,
   game_over: false,
+  game_started: false,
 }
+

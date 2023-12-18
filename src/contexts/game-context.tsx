@@ -36,6 +36,12 @@ const gameReducer = (state: GameState, action: GameAction) => {
       return doMove(state, action)
     case 'RESTART':
       return doRestart()
+    case 'SHOW_BOARD':
+      return show_board(state)
+    case 'START':
+      return start_game(state)
+    case 'END':
+      return end_game()
   }
 }
 
@@ -58,7 +64,6 @@ const doMove = (state: GameState, action: Move) => {
   piece.location = to
   to_cell.push(piece)
 
-  console.log('player won?', is_winning_state(state))
   state.winner = is_winning_state(state) ? state.turn : null
   state.game_over = state.winner !== null
   if (state.game_over) return state
@@ -68,7 +73,21 @@ const doMove = (state: GameState, action: Move) => {
 }
 
 const doRestart = () => {
-  return game_initial_state
+  const state = game_initial_state
+  const new_state = { ...state, game_started: true }
+  return new_state
 }
 
+const start_game = () => {
+  return doRestart()
+}
+
+const show_board = (state: GameState) => {
+  state.game_started = false
+  return state
+}
+
+const end_game = () => {
+  return game_initial_state
+}
 export default GameProvider

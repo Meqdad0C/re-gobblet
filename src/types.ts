@@ -25,7 +25,23 @@ export interface GameState {
   possible_moves: Array<PossibleMovesForPiece>
   winner: Player | null
   game_over: boolean
+  game_started: boolean
 }
+
+export interface GameOptions {
+  game_type: GameType
+  algorithm_1: Algorithm
+  algorithm_2: Algorithm
+  depth_1: number
+  depth_2: number
+}
+
+export type GameType = 'PvP' | 'PvAI' | 'AIvAI'
+export type Algorithm =
+  | 'Random'
+  | 'Minimax'
+  | 'AlphaBeta'
+  | 'AlphaBetaWithIterativeDeepening'
 
 export interface PossibleMovesForPiece {
   id: `piece-${number}-${Player}-${Size}` // `piece-${stack_number}-${player}-${size}`
@@ -43,4 +59,13 @@ export type Move = {
   }
 }
 
-export type GameAction = Move | { type: 'RESTART' }
+export type Restart = {
+  type: 'RESTART'
+}
+
+export type GameAction =
+  | Move
+  | Restart
+  | { type: 'SHOW_BOARD' }
+  | { type: 'START' }
+  | { type: 'END'}

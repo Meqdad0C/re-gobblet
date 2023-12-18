@@ -1,4 +1,3 @@
-import { ModeToggle } from '@/components/mode-toggle'
 import { cn } from '@/lib/utils'
 import {
   useDroppable,
@@ -8,8 +7,7 @@ import {
 } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { Player, Size, Piece_t } from '@/types'
-import { useGame, useGameDispatch } from '@/hooks/game-hooks'
-import { WinnerDialog } from '@/components/winner-dialog'
+import { useGame, useGameDispatch, useOptions } from '@/hooks/game-hooks'
 import {
   Card,
   CardContent,
@@ -20,6 +18,8 @@ import {
 } from '@/components/ui/card'
 import { Separator } from './components/ui/separator'
 import { Button } from './components/ui/button'
+import { MainMenu } from './components/MainMenu'
+import { WinnerDialog } from './components/winner-dialog'
 
 /**
  * Piece has a size and a color
@@ -165,7 +165,9 @@ const Game = () => {
   const handleDragEnd = (e: DragEndEvent) => {
     const { over, active } = e
     const dont_do_the_drag =
-      active.data.current!.player !== state.turn || state.game_over
+      active.data.current!.player !== state.turn ||
+      state.game_over ||
+      !state.game_started
     if (dont_do_the_drag) return
     if (over && active) {
       const { player, location, stack_number } = active.data.current as Piece_t
@@ -196,34 +198,78 @@ const Game = () => {
 const SideBar = () => {
   const state = useGame()
   const dispatch = useGameDispatch()
+  const [options] = useOptions()
 
   return (
-    <Card
-      className='flex flex-col gap-2 rounded-2xl border-2 border-black bg-gradient-to-r
-     p-2 dark:border-white md:h-96 md:w-96'
-    >
-      <CardHeader>
-        <CardTitle className='text-center text-2xl font-bold'>
-          Game Info
-        </CardTitle>
-        <Separator className='border-2 border-black dark:border-white' />
-      </CardHeader>
-      <CardContent>
-        <p className='text-center'>
-          <span className='text-lg font-bold'>Turn:</span> Player{' '}
-          {state.turn + 1} {state.turn === Player.Red ? '🔴' : '🔵'}
-        </p>
-      </CardContent>
-      <CardFooter className='flex justify-between gap-2 mt-auto'>
-        <Button
-          variant='destructive'
-          onClick={() => dispatch({ type: 'RESTART' })}
-        >
-          Restart Game
-        </Button>
-        <Button className='bg-violet-500 hover:bg-violet-600'>Main Menu</Button>
-      </CardFooter>
-    </Card>
+    <div className='flex flex-col '>
+      <Card className='flex flex-col rounded-2xl border-2 border-black md:w-96'>
+        <CardHeader>
+          <CardTitle className='text-center text-2xl font-bold'>
+            Game Info
+          </CardTitle>
+          <Separator className='border-2 border-black ' />
+          <CardDescription>
+            <span className='font-bold'>You Can Edit Game Options Bellow</span>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className='flex flex-col'>
+          <p className='text-center'>
+            <span className='text-lg font-bold'>Turn:</span> Player{' '}
+            {state.turn + 1} {state.turn === Player.Red ? '🔴' : '🔵'}
+          </p>
+          <p className='text-center'>
+            <span className='text-lg font-bold'>Game Type:</span>{' '}
+            {options.game_type}
+          </p>
+          <p className='text-center'>
+            <span className='text-lg font-bold'>Algorithm 1:</span>{' '}
+            {options.algorithm_1}
+          </p>
+          <p className='text-center'>
+            <span className='text-lg font-bold'>Algorithm 2:</span>{' '}
+            {options.algorithm_2}
+          </p>
+          <p>
+            <span className='text-lg font-bold'>Game Started:</span>{' '}
+            {state.game_started ? 'Yes' : 'No'}
+          </p>
+          <p>
+            <span className='text-lg font-bold'>Game Over:</span>{' '}
+            {state.game_over ? 'Yes' : 'No'}
+          </p>
+          <p>
+            <span className='text-lg font-bold'>Winner:</span>{' '}
+            {state.winner !== null ? `Player ${state.winner + 1}` : 'None'}
+          </p>
+        </CardContent>
+        <CardFooter className='mt-auto flex justify-between gap-2'>
+          {state.game_started !== true ? (
+            <Button
+              className='bg-green-500 hover:bg-green-600'
+              onClick={() => dispatch({ type: 'START' })}
+            >
+              Start Game
+            </Button>
+          ) : (
+            <Button
+              variant='destructive'
+              onClick={() => dispatch({ type: 'RESTART' })}
+            >
+              Restart Game
+            </Button>
+          )}
+          {state.game_started !== true ? (
+            <MainMenu />
+          ) : (
+            <Button
+              onClick={() => dispatch({ type: 'END' })}
+            >
+              End Game
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+    </div>
   )
 }
 
@@ -231,12 +277,9 @@ export default function App() {
   return (
     <>
       <main className='container flex min-h-screen flex-col items-center justify-center gap-2'>
-        <div className='fixed right-5 top-5'>
-          <ModeToggle />
-          <WinnerDialog />
-        </div>
         <h1 className='text-center text-5xl font-bold'>Gobblet!</h1>
         <div className='flex flex-col gap-2 md:flex-row'>
+          <WinnerDialog />
           <Game />
           <SideBar />
         </div>
