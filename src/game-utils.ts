@@ -4,9 +4,10 @@ import {
   Piece_t,
   Player,
   PossibleMovesForPiece,
+  Size,
 } from '@/types'
 
-import cloneDeep from 'lodash.clonedeep'
+import { produce } from 'immer'
 import { doMove } from './reducers/game-reducer'
 
 export const switch_turn = (turn: Player): Player => {
@@ -349,7 +350,75 @@ export const is_winning_state = (state: GameState): boolean => {
  * @returns the new game state after the move has been made
  */
 export const getSuccesorState = (state: GameState, move: Move) => {
-  const cloned_state = cloneDeep(state)
-  const new_state = doMove(cloned_state, move)
-  return new_state
+  const cloned_state = produce(state, (draft) => {
+    doMove(draft, move)
+  })
+  return cloned_state
+}
+
+interface SuccesorState {
+  state: GameState
+  move: Move
+}
+interface SuccesorStates {
+  id: `piece-${number}-${Player}-${Size}` // `piece-${stack_number}-${player}-${size}
+  states: SuccesorState[]
+}
+export const getAllSuccesorStates = (state: GameState): SuccesorStates[] => {
+  const possible_moves = state.possible_moves
+  const succesor_states: SuccesorStates[] = []
+
+  possible_moves.forEach((possible_move) => {
+    const states: { state: GameState; move: Move }[] = []
+    possible_move.array_of_moves.forEach((move) => {
+      const succesor_state = getSuccesorState(state, {
+        type: 'MOVE',
+        payload: {
+          player: state.turn,
+          stack_number: Number(possible_move.id.split('-')[1]),
+          from: possible_move.from,
+          to: move,
+        },
+      })
+      states.push({
+        state: succesor_state,
+        move: {
+          type: 'MOVE',
+          payload: {
+            player: state.turn,
+            stack_number: Number(possible_move.id.split('-')[1]),
+            from: possible_move.from,
+            to: move,
+          },
+        },
+      })
+    })
+    succesor_states.push({
+      id: possible_move.id,
+      states: states,
+    })
+  })
+
+  return succesor_states
+}
+
+export const ai_random_move = (state: GameState) => {
+  const possible_moves = getPossibleMoves(state)
+  const number_of_pieces = possible_moves.length
+  const random_piece =
+    possible_moves[Math.floor(Math.random() * number_of_pieces)]
+  const number_of_moves = random_piece.array_of_moves.length
+  const random_grid_place =
+    random_piece.array_of_moves[Math.floor(Math.random() * number_of_moves)]
+  const random_move: Move = {
+    type: 'MOVE',
+    payload: {
+      player: state.turn,
+      stack_number: Number(random_piece.id.split('-')[1]),
+      from: random_piece.from,
+      to: random_grid_place,
+    },
+  }
+
+  return random_move
 }
