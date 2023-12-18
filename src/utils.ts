@@ -29,7 +29,10 @@ export const isLegalMove = (state: GameState, move: Move): boolean => {
   const to_piece = to_stack[to_stack.length - 1]
   const piece = from_stack[from_stack.length - 1]
 
-  if (isMoveFromInventory && to_piece.player !== player) {
+  if (isMoveFromInventory  ) {
+    if(to_piece.player === player){
+      return false
+    }
     const oneToComplete = find_three_in_a_row(state)
     const move_if_to_one_to_complete = oneToComplete.find(
       (location) => location[0] === to[0] && location[1] === to[1],
