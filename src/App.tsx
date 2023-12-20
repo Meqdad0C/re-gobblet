@@ -13,6 +13,8 @@ import { useEffect } from 'react'
 import { getAllSuccesorStates, getSuccesorState } from './game-utils'
 import { SideBar } from './components/SideBar'
 import { ai_random_move } from './game-utils'
+import { minimax } from './algorithm/min_max'
+import { stat } from 'fs'
 
 /**
  * Piece has a size and a color
@@ -164,11 +166,16 @@ const Game = () => {
       state.turn === Player.Blue &&
       is_game_running
     ) {
-      console.log('[getAllSuccesorStates]', getAllSuccesorStates(state))
+      const result = minimax(state, 1, true);
+console.log("Best move:", result.move);
+console.log("Score:", result.score);
+
       const random_move = ai_random_move(state)
       console.log('AI CHOSE', random_move)
       console.log('[getSuccesorState]', getSuccesorState(state, random_move))
-      dispatch(random_move)
+      if (result.move) {
+        dispatch(result.move);
+    }
     }
     if (options.game_type === 'AIvAI' && is_game_running) {
       const random_move = ai_random_move(state)

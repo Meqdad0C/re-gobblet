@@ -6,7 +6,7 @@ import {
   switch_turn,
   getPossibleMoves,
 } from '@/game-utils'
-
+import { minimax } from '@/algorithm/min_max'
 export const gameReducer = (state: GameState, action: GameAction) => {
   switch (action.type) {
     case 'MOVE':
@@ -27,6 +27,7 @@ export const doMove = (state: GameState, action: Move) => {
     console.log('[doMove] illegal move')
     return state
   }
+
   const from_stack =
     from[0] === -1
       ? state.inventories[player][stack_number]
