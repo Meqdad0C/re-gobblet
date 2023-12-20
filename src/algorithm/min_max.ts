@@ -28,7 +28,7 @@ export function minimax(
   isMaximizingPlayer: boolean,
 ): MinimaxResult {
   if (depth === 0 || gameState.game_over) {
-    console.log('turn', gameState.turn)
+    // console.log('turn', gameState.turn)
     return { score: heuristic_value_of(gameState) }
   }
 
@@ -37,13 +37,13 @@ export function minimax(
     let bestMove: Move | undefined
 
     const successorStates = getAllSuccesorStates(gameState)
-    console.log(successorStates)
+    console.log('[min_max getAllSuccesorStates]', successorStates)
     successorStates.forEach((successorState) => {
       successorState.states.forEach((stateMovePair) => {
         const evaluation = minimax(stateMovePair.state, depth - 1, false)
         if (stateMovePair.state.game_over) {
           console.log(
-            'winning state',
+            '[winning state]',
             heuristic_value_of(stateMovePair.state),
             stateMovePair.state.turn,
           )

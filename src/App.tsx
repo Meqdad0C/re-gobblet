@@ -166,16 +166,16 @@ const Game = () => {
       state.turn === Player.Blue &&
       is_game_running
     ) {
-      const result = minimax(state, 1, true);
-console.log("Best move:", result.move);
-console.log("Score:", result.score);
+      const result = minimax(state, 1, true)
+      console.log('[Best move] ', result.move)
+      console.log('[Score]', result.score)
 
-      const random_move = ai_random_move(state)
-      console.log('AI CHOSE', random_move)
-      console.log('[getSuccesorState]', getSuccesorState(state, random_move))
+      // const random_move = ai_random_move(state)
+      // console.log('AI CHOSE', random_move)
+      // console.log('[getSuccesorState]', getSuccesorState(state, random_move))
       if (result.move) {
-        dispatch(result.move);
-    }
+        dispatch(result.move)
+      }
     }
     if (options.game_type === 'AIvAI' && is_game_running) {
       const random_move = ai_random_move(state)
