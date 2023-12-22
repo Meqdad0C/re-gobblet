@@ -166,7 +166,7 @@ const Game = () => {
       state.turn === Player.Blue &&
       is_game_running
     ) {
-      const result = minimax(state, 1, true)
+      const result = minimax(state, 2, true)
       console.log('[Best move] ', result.move)
       console.log('[Score]', result.score)
 

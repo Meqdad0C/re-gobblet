@@ -1,18 +1,8 @@
-import {
-  Board,
-  Stack,
-  Move,
-  Player,
-  Size,
-  PossibleMovesForPiece,
-  GameState,
-  GameAction,
-  GameOptions,
-} from '@/types'
+import { Board, Stack, Move, Player, GameState } from '@/types'
 
 import { doMove } from '@/reducers/game-reducer'
 
-import { getAllSuccesorStates } from '@/game-utils'
+import { getAllSuccesorStates, switch_turn } from '@/game-utils'
 import { Console } from 'console'
 
 const INFINITY: number = Number.POSITIVE_INFINITY
@@ -37,16 +27,16 @@ export function minimax(
     let bestMove: Move | undefined
 
     const successorStates = getAllSuccesorStates(gameState)
-    console.log('[min_max getAllSuccesorStates]', successorStates)
+    // console.log('[min_max getAllSuccesorStates]', successorStates)
     successorStates.forEach((successorState) => {
       successorState.states.forEach((stateMovePair) => {
         const evaluation = minimax(stateMovePair.state, depth - 1, false)
         if (stateMovePair.state.game_over) {
-          console.log(
-            '[winning state]',
-            heuristic_value_of(stateMovePair.state),
-            stateMovePair.state.turn,
-          )
+          // console.log(
+          //   '[winning state]',
+          //   heuristic_value_of(stateMovePair.state),
+          //   stateMovePair.state.turn,
+          // )
         }
         if (evaluation.score > maxEval) {
           maxEval = evaluation.score
@@ -61,9 +51,11 @@ export function minimax(
     let bestMove: Move | undefined
 
     const successorStates = getAllSuccesorStates(gameState)
+    // console.log(successorStates)
     successorStates.forEach((successorState) => {
       successorState.states.forEach((stateMovePair) => {
         const evaluation = minimax(stateMovePair.state, depth - 1, true)
+
         if (evaluation.score < minEval) {
           minEval = evaluation.score
           bestMove = stateMovePair.move
@@ -79,13 +71,9 @@ export function heuristic_value_of(gameState: GameState): number {
   let score = 0
 
   // Evaluate lines for scoring potential
-  //if this is the last turn, toggle the turn to be as there is a next state
-  let turn = gameState.turn
-  if (gameState.game_over) {
-    if (turn === 0) {
-      turn = 1
-    } else turn = 0
-  }
+
+  //here the turn represents the player color who plays as AI
+  let turn = Player.Blue
   score += evaluateLines(gameState.board, turn)
 
   // Additional heuristic
@@ -122,7 +110,7 @@ function evaluateLine(line: Array<Stack>, currentPlayer: Player): number {
     if (stack.length > 0) {
       const topPiece = stack[stack.length - 1]
       const value = topPiece.size + 1 // Scoring based on size
-      if (topPiece.player != currentPlayer) {
+      if (topPiece.player === currentPlayer) {
         score += value // Favorable for current player
         playerCount++
       } else {
@@ -144,10 +132,10 @@ function evaluateLinePotential(
 ): number {
   let lineScore = 0
 
-  // Adjust these values as needed based on your game strategy
   const winningThreshold = 4 // Number of pieces needed to win
   const playerBonus = 10 // Bonus score for each piece of the current player
   const opponentPenalty = -1 // Penalty score for each piece of the opponent
+  const bigNegative = -1000 // Big negative score if the opponent is about to win
 
   if (playerCount > 0 && opponentCount === 0) {
     // Line has only the current player's pieces
@@ -158,6 +146,10 @@ function evaluateLinePotential(
   } else if (opponentCount > 0 && playerCount === 0) {
     // Line has only the opponent's pieces
     lineScore += opponentPenalty * opponentCount
+    if (opponentCount === winningThreshold - 1) {
+      // Opponent is one move away from winning
+      lineScore += bigNegative
+    }
   }
 
   // No additional score for mixed lines (both players' pieces present)
