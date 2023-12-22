@@ -10,7 +10,7 @@ import { Player, Size, Piece_t } from '@/types'
 import { useGame, useGameDispatch, useOptions } from '@/hooks/game-hooks'
 import { WinnerDialog } from './components/winner-dialog'
 import { useEffect } from 'react'
-import { getAllSuccesorStates, getSuccesorState } from './game-utils'
+import { getAllSuccesorStates, getSuccesorState, switch_turn } from './game-utils'
 import { SideBar } from './components/SideBar'
 import { ai_random_move } from './game-utils'
 import { minimax } from './algorithm/min_max'
@@ -166,7 +166,13 @@ const Game = () => {
       state.turn === Player.Blue &&
       is_game_running
     ) {
-      const result = minimax(state, 2, true)
+
+      const initialAlpha =Number.NEGATIVE_INFINITY;
+      const initialBeta = Number.POSITIVE_INFINITY;
+
+      // const result = minimax(state, 3, initialAlpha, initialBeta, true, Player.Blue);
+      const result = minimax(state, 2, true, Player.Blue);
+
       console.log('[Best move] ', result.move)
       console.log('[Score]', result.score)
 
@@ -178,8 +184,16 @@ const Game = () => {
       }
     }
     if (options.game_type === 'AIvAI' && is_game_running) {
-      const random_move = ai_random_move(state)
-      dispatch(random_move)
+
+      const initialAlpha =Number.POSITIVE_INFINITY;
+      const initialBeta = Number.NEGATIVE_INFINITY;
+      // const result = minimax(state, 1, initialAlpha, initialBeta, true, state.turn);
+      const result = minimax(state, 2, true, state.turn);
+      // const random_move = ai_random_move(state)
+      console.log('[Best move] ', result.move)
+      console.log('[Score]', result.score)
+      if(result.move)
+        dispatch(result.move)
     }
   }, [is_game_running, state.turn])
 
