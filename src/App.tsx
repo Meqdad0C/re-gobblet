@@ -36,10 +36,34 @@ const Game = ({ worker }: GameProps) => {
       is_game_running
     ) {
       worker.postMessage({ state, depth: 2, maximizingPlayer: true })
+
+      const initialAlpha =Number.NEGATIVE_INFINITY;
+      const initialBeta = Number.POSITIVE_INFINITY;
+
+      // const result = minimax(state, 3, initialAlpha, initialBeta, true, Player.Blue);
+      const result = minimax(state, 2, true, Player.Blue);
+
+      console.log('[Best move] ', result.move)
+      console.log('[Score]', result.score)
+
+      // const random_move = ai_random_move(state)
+      // console.log('AI CHOSE', random_move)
+      // console.log('[getSuccesorState]', getSuccesorState(state, random_move))
+      if (result.move) {
+        dispatch(result.move)
+      }
     }
     if (options.game_type === 'AIvAI' && is_game_running) {
-      const random_move = ai_random_move(state)
-      dispatch(random_move)
+
+      const initialAlpha =Number.POSITIVE_INFINITY;
+      const initialBeta = Number.NEGATIVE_INFINITY;
+      // const result = minimax(state, 1, initialAlpha, initialBeta, true, state.turn);
+      const result = minimax(state, 2, true, state.turn);
+      // const random_move = ai_random_move(state)
+      console.log('[Best move] ', result.move)
+      console.log('[Score]', result.score)
+      if(result.move)
+        dispatch(result.move)
     }
   }, [is_game_running, state.turn])
 
