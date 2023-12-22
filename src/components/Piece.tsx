@@ -38,7 +38,7 @@ export const Piece = ({ player, size, stack_number, location }: Piece_t) => {
       {...listeners}
       style={style}
       className={cn(
-        ['absolute rounded-full border-2 border-black '],
+        ['absolute rounded-full border-2 border-slate-200'],
         {
           'bg-red-500': player === Player.Red,
           'bg-blue-500': player === Player.Blue,
