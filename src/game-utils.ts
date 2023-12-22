@@ -379,7 +379,6 @@ const find_four_in_a_row = (state: GameState) => {
 }
 
 export const is_winning_state = (state: GameState): Player | null => {
-  console.log('[is_winning_state]', JSON.parse(JSON.stringify(state)))
   const has_player_won = find_four_in_a_row(state)
   return has_player_won
 }
