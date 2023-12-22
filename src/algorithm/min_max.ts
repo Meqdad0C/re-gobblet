@@ -12,6 +12,9 @@ export interface MinimaxResult {
   move?: Move
 }
 
+//tobedeleted
+let flag = false
+
 export function minimax(
   gameState: GameState,
   depth: number,
@@ -19,7 +22,6 @@ export function minimax(
   turn: Player,
 ): MinimaxResult {
   if (depth === 0 || gameState.game_over) {
-    // console.log('turn', gameState.turn)
     return { score: heuristic_value_of(gameState, turn) }
   }
   let playerBestMove
@@ -47,7 +49,9 @@ export function minimax(
         }
       })
     })
+
     console.log('player best move', playerBestMove)
+
     return { score: maxEval, move: bestMove }
   } else {
     let minEval: number = INFINITY
@@ -65,82 +69,81 @@ export function minimax(
         }
       })
     })
-
     return { score: minEval, move: bestMove }
   }
 }
-// export function minimax(
-//   gameState: GameState,
-//   depth: number,
-//   alpha: number,
-//   beta: number,
-//   isMaximizingPlayer: boolean,
-//   turn: Player,
-// ): MinimaxResult {
-//   if (depth === 0 || gameState.game_over) {
-//     return { score: heuristic_value_of(gameState, turn) }
-//   }
+export function minimax_with_pruning(
+  gameState: GameState,
+  depth: number,
+  alpha: number,
+  beta: number,
+  isMaximizingPlayer: boolean,
+  turn: Player,
+): MinimaxResult {
+  if (depth === 0 || gameState.game_over) {
+    return { score: heuristic_value_of(gameState, turn) }
+  }
 
-//   if (isMaximizingPlayer) {
-//     let maxEval: number = -INFINITY
-//     let bestMove: Move | undefined
+  if (isMaximizingPlayer) {
+    let maxEval: number = -INFINITY
+    let bestMove: Move | undefined
 
-//     const successorStates = getAllSuccesorStates(gameState)
-//     for (const successorState of successorStates) {
-//       for (const stateMovePair of successorState.states) {
-//         const evaluation = minimax(
-//           stateMovePair.state,
-//           depth - 1,
-//           alpha,
-//           beta,
-//           false,
-//           turn,
-//         )
-//         if (evaluation.score > maxEval) {
-//           maxEval = evaluation.score
-//           bestMove = stateMovePair.move
-//         }
-//         alpha = Math.max(alpha, evaluation.score)
-//         if (beta <= alpha) {
-//           break // Beta cut-off
-//         }
-//       }
-//       if (beta <= alpha) {
-//         break // Beta cut-off
-//       }
-//     }
-//     return { score: maxEval, move: bestMove }
-//   } else {
-//     let minEval: number = INFINITY
-//     let bestMove: Move | undefined
+    const successorStates = getAllSuccesorStates(gameState)
+    for (const successorState of successorStates) {
+      for (const stateMovePair of successorState.states) {
+        const evaluation = minimax_with_pruning(
+          stateMovePair.state,
+          depth - 1,
+          alpha,
+          beta,
+          false,
+          turn,
+        )
+        if (evaluation.score > maxEval) {
+          maxEval = evaluation.score
+          bestMove = stateMovePair.move
+        }
+        alpha = Math.max(alpha, evaluation.score)
+        if (beta <= alpha) {
+          break // Beta cut-off
+        }
+      }
+      if (beta <= alpha) {
+        break // Beta cut-off
+      }
+    }
+    return { score: maxEval, move: bestMove }
+  } else {
+    let minEval: number = INFINITY
+    let bestMove: Move | undefined
 
-//     const successorStates = getAllSuccesorStates(gameState)
-//     for (const successorState of successorStates) {
-//       for (const stateMovePair of successorState.states) {
-//         const evaluation = minimax(
-//           stateMovePair.state,
-//           depth - 1,
-//           alpha,
-//           beta,
-//           true,
-//           turn,
-//         )
-//         if (evaluation.score < minEval) {
-//           minEval = evaluation.score
-//           bestMove = stateMovePair.move
-//         }
-//         beta = Math.min(beta, evaluation.score)
-//         if (beta <= alpha) {
-//           break // Alpha cut-off
-//         }
-//       }
-//       if (beta <= alpha) {
-//         break // Alpha cut-off
-//       }
-//     }
-//     return { score: minEval, move: bestMove }
-//   }
-// }
+    const successorStates = getAllSuccesorStates(gameState)
+    for (const successorState of successorStates) {
+      for (const stateMovePair of successorState.states) {
+        const evaluation = minimax_with_pruning(
+          stateMovePair.state,
+          depth - 1,
+          alpha,
+          beta,
+          true,
+          turn,
+        )
+        if (evaluation.score < minEval) {
+          minEval = evaluation.score
+          bestMove = stateMovePair.move
+        }
+        beta = Math.min(beta, evaluation.score)
+        if (beta <= alpha) {
+          break // Alpha cut-off
+        }
+      }
+      if (beta <= alpha) {
+        break // Alpha cut-off
+      }
+    }
+    return { score: minEval, move: bestMove }
+  }
+}
 export function heuristic_value_of(
   gameState: GameState,
   currentPlayer: Player,

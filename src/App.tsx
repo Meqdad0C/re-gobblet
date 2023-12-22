@@ -13,7 +13,7 @@ import { useEffect } from 'react'
 import { getAllSuccesorStates, getSuccesorState, switch_turn } from './game-utils'
 import { SideBar } from './components/SideBar'
 import { ai_random_move } from './game-utils'
-import { minimax } from './algorithm/min_max'
+import { minimax, minimax_with_pruning } from './algorithm/min_max'
 import { stat } from 'fs'
 
 /**
@@ -170,7 +170,7 @@ const Game = () => {
       const initialAlpha =Number.NEGATIVE_INFINITY;
       const initialBeta = Number.POSITIVE_INFINITY;
 
-      // const result = minimax(state, 3, initialAlpha, initialBeta, true, Player.Blue);
+      // const result = minimax_with_pruning(state, 3, initialAlpha, initialBeta, true, Player.Blue);
       const result = minimax(state, 2, true, Player.Blue);
 
       console.log('[Best move] ', result.move)
@@ -187,7 +187,7 @@ const Game = () => {
 
       const initialAlpha =Number.POSITIVE_INFINITY;
       const initialBeta = Number.NEGATIVE_INFINITY;
-      // const result = minimax(state, 1, initialAlpha, initialBeta, true, state.turn);
+      // const result = minimax_with_pruning(state, 1, initialAlpha, initialBeta, true, state.turn);
       const result = minimax(state, 2, true, state.turn);
       // const random_move = ai_random_move(state)
       console.log('[Best move] ', result.move)
