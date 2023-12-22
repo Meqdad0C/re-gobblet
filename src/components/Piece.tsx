@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils'
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { Player, Size, Piece_t } from '@/types'
-import { useGame } from '@/hooks/game-hooks'
+import { useGame, useOptions } from '@/hooks/game-hooks'
 
 /**
  * Piece has a size and a color
@@ -11,6 +11,7 @@ import { useGame } from '@/hooks/game-hooks'
  */
 export const Piece = ({ player, size, stack_number, location }: Piece_t) => {
   const { touched_board_piece_location, turn } = useGame()
+  const [options] = useOptions()
   const ref_data: Piece_t = { player, size, stack_number, location }
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: `piece-${stack_number}-${player}-${size}`,
@@ -23,7 +24,8 @@ export const Piece = ({ player, size, stack_number, location }: Piece_t) => {
 
   const include_listeners =
     touched_board_piece_location === null
-      ? turn === player
+      ? (turn === player && options.game_type === 'PvP') ||
+        (options.game_type === 'PvAI' && player === Player.Red)
         ? true
         : false
       : touched_board_piece_location[0] === location[0] &&
