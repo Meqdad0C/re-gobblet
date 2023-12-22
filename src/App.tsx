@@ -1,7 +1,6 @@
 import {
   DndContext,
   DragEndEvent,
-  DragOverlay,
   DragStartEvent,
 } from '@dnd-kit/core'
 import { Player, Piece_t } from '@/types'
@@ -104,7 +103,7 @@ const Game = ({ worker }: GameProps) => {
       options.game_type === 'AIvAI'
     const not_current_player_piece = active.data.current!.player !== state.turn
     const is_piece_in_inventory = active.data.current!.location[0] === -1
-    
+
     const dont_do_the_drag =
       !is_game_running ||
       ai_turn ||
@@ -139,7 +138,7 @@ export default function App() {
     { type: 'module' },
   )
   return (
-    <>
+    <div data-theme='cupcake'>
       <main className='container flex min-h-screen flex-col items-center justify-center gap-2'>
         <h1 className='text-center text-5xl font-bold'>Gobblet!</h1>
         <div className='flex flex-col gap-2 md:flex-row'>
@@ -148,6 +147,6 @@ export default function App() {
           <SideBar />
         </div>
       </main>
-    </>
+    </div>
   )
 }

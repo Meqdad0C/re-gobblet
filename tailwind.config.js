@@ -73,4 +73,7 @@ module.exports = {
     },
   },
   plugins: [require('tailwindcss-animate'), require('daisyui')],
+  daisyui: {
+    themes: ["cupcake"]
+  },
 }
