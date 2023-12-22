@@ -26,6 +26,7 @@ export interface GameState {
   winner: Player | null
   game_over: boolean
   game_started: boolean
+  touched_board_piece_location: null | number[]
 }
 
 export interface GameOptions {
@@ -68,3 +69,4 @@ export type GameAction =
   | Restart
   | { type: 'SHOW_BOARD' }
   | { type: 'END'}
+  | { type: 'TOUCH_BOARD_PIECE'; payload: { location: number[] } }

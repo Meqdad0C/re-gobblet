@@ -17,6 +17,8 @@ export const gameReducer = (state: GameState, action: GameAction) => {
       return show_board(state)
     case 'END':
       return end_game()
+    case 'TOUCH_BOARD_PIECE':
+      return doTouchBoardPiece(state, action.payload.location)
   }
 }
 
@@ -44,6 +46,7 @@ export const doMove = (state: GameState, action: Move) => {
   if (state.game_over) return state
   state.turn = switch_turn(state.turn)
   state.possible_moves = getPossibleMoves(state)
+  state.touched_board_piece_location = null
   return state
 }
 
@@ -60,4 +63,9 @@ export const show_board = (state: GameState) => {
 
 export const end_game = () => {
   return game_initial_state
+}
+
+export const doTouchBoardPiece = (state: GameState, location: number[]) => {
+  state.touched_board_piece_location = location
+  return state
 }

@@ -1,8 +1,13 @@
-import { DndContext, DragEndEvent } from '@dnd-kit/core'
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+} from '@dnd-kit/core'
 import { Player, Piece_t } from '@/types'
 import { useGame, useGameDispatch, useOptions } from '@/hooks/game-hooks'
 import { WinnerDialog } from './components/winner-dialog'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { SideBar } from './components/SideBar'
 import { ai_random_move } from './game-utils'
 import { Inventory, Board } from './components/Board'
@@ -25,7 +30,7 @@ const Game = ({ worker }: GameProps) => {
       dispatch(result.move)
     }
   }
-  console.log('[game state]', state)
+  // console.log('[game state]', state)
 
   const is_game_running = state.game_started && !state.game_over
   useEffect(() => {
@@ -75,7 +80,7 @@ const Game = ({ worker }: GameProps) => {
     const dont_do_the_drag =
       !is_game_running || ai_turn || not_current_player_piece
     if (dont_do_the_drag) return
-    
+
     if (over && active) {
       const { player, location, stack_number } = active.data.current as Piece_t
       const { row, col } = over.data.current as { row: number; col: number }
@@ -91,9 +96,34 @@ const Game = ({ worker }: GameProps) => {
     }
   }
 
+  const handleDrageStart = (e: DragStartEvent) => {
+    const { active } = e
+    const is_game_running = state.game_started && !state.game_over
+    const ai_turn =
+      (options.game_type === 'PvAI' && state.turn === Player.Blue) ||
+      options.game_type === 'AIvAI'
+    const not_current_player_piece = active.data.current!.player !== state.turn
+    const is_piece_in_inventory = active.data.current!.location[0] === -1
+    
+    const dont_do_the_drag =
+      !is_game_running ||
+      ai_turn ||
+      not_current_player_piece ||
+      is_piece_in_inventory
+    if (dont_do_the_drag) return
+
+    const { location } = active.data.current as Piece_t
+    dispatch({
+      type: 'TOUCH_BOARD_PIECE',
+      payload: {
+        location,
+      },
+    })
+  }
+
   return (
     <div className='flex flex-col items-center justify-between gap-2'>
-      <DndContext onDragEnd={handleDragEnd}>
+      <DndContext onDragEnd={handleDragEnd} onDragStart={handleDrageStart}>
         <Inventory player={Player.Red} />
         <Board />
         <Inventory player={Player.Blue} />

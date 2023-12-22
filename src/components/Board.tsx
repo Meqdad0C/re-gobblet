@@ -1,72 +1,16 @@
 import { cn } from '@/lib/utils';
 import {
-  useDroppable,
-  useDraggable
-} from '@dnd-kit/core';
-import { CSS } from '@dnd-kit/utilities';
-import { Player, Size, Piece_t } from '@/types';
+  useDroppable} from '@dnd-kit/core';
+import { Player } from '@/types';
 import { useGame } from '@/hooks/game-hooks';
+import { Piece } from './Piece';
 
-/**
- * Piece has a size and a color
- * Color is either red or blue
- * Size is either small, medium, or large
- */
-const Piece = ({ player, size, stack_number, location }: Piece_t) => {
-  const ref_data: Piece_t = { player, size, stack_number, location };
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: `piece-${stack_number}-${player}-${size}`,
-    data: ref_data,
-  });
-
-  const style = {
-    transform: CSS.Translate.toString(transform),
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      {...attributes}
-      {...listeners}
-      style={style}
-      className={cn(
-        ['absolute rounded-full border-2 border-black '],
-        {
-          'bg-red-500': player === Player.Red,
-          'bg-blue-500': player === Player.Blue,
-        },
-        {
-          'h-8 w-8': size === Size.Small,
-          'h-12 w-12': size === Size.Medium,
-          'h-16 w-16': size === Size.Large,
-          'h-24 w-24': size === Size.XLarge,
-        },
-        {
-          'hover:bg-red-400': player === Player.Red,
-          'hover:bg-blue-400': player === Player.Blue,
-        },
-        {
-          'text-sm': size === Size.Small,
-          'text-base': size === Size.Medium,
-          'text-lg': size === Size.Large,
-          'text-xl': size === Size.XLarge,
-        },
-        {
-          'text-white': player === Player.Red,
-          'text-black': player === Player.Blue,
-        },
-        {
-          'z-20 opacity-50': transform,
-        }
-      )} />
-  );
-};
 export const Inventory = ({ player }: { player: Player; }) => {
   const game_state = useGame();
   const inventory = game_state.inventories[player];
 
   return (
-    <div className='grid h-40 w-full grid-cols-3 rounded-2xl border-2 border-black bg-gradient-to-r from-red-300 to-blue-300 dark:border-white'>
+    <div className='grid h-40 w-full grid-cols-3 rounded-2xl border-2 border-black bg-gradient-to-r from-red-300 to-blue-300 dark:border-white touch-none'>
       {inventory.map((stack, i) => (
         <div key={i} className='grid items-center justify-items-center'>
           {stack.map((p, idx) => (

@@ -50,4 +50,5 @@ export const game_initial_state: GameState = {
   winner: null,
   game_over: false,
   game_started: false,
+  touched_board_piece_location: null,
 }
