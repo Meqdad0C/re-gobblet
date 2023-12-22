@@ -32,7 +32,9 @@ export function MainMenu() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button className='bg-violet-500 hover:bg-violet-600'>Game Options</Button>
+        <Button className='bg-violet-500 hover:bg-violet-600'>
+          Game Options
+        </Button>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
@@ -60,7 +62,7 @@ export function MainMenu() {
           {(options.game_type === 'PvAI' || options.game_type === 'AIvAI') && (
             <div className='grid grid-cols-4 gap-4'>
               <Label htmlFor='alg' className='text-right'>
-                Algorithm {options.game_type === 'AIvAI' && '(1)'}
+                Difficulty {options.game_type === 'AIvAI' && 'AI (1)'}
               </Label>
               <RadioGroup
                 defaultValue={options.algorithm_1}
@@ -72,24 +74,15 @@ export function MainMenu() {
               >
                 <div className='flex items-center space-x-2'>
                   <RadioGroupItem value='Random' id='r' />
-                  <Label htmlFor='r'>Random</Label>
+                  <Label htmlFor='r'>Easy</Label>
                 </div>
                 <div className='flex items-center space-x-2'>
                   <RadioGroupItem value='Minimax' id='mm' />
-                  <Label htmlFor='mm'>minimax</Label>
+                  <Label htmlFor='mm'>Medium</Label>
                 </div>
                 <div className='flex items-center space-x-2'>
                   <RadioGroupItem value='ab' id='ab' />
-                  <Label htmlFor='AlphaBeta'>Alpha-beta pruning</Label>
-                </div>
-                <div className='flex items-center space-x-2'>
-                  <RadioGroupItem
-                    value='AlphaBetaWithIterativeDeepening'
-                    id='abit'
-                  />
-                  <Label htmlFor='abit'>
-                    Alpha-beta pruning with iterative deepening
-                  </Label>
+                  <Label htmlFor='AlphaBeta'>Hard</Label>
                 </div>
               </RadioGroup>
             </div>
@@ -97,7 +90,7 @@ export function MainMenu() {
           {options.game_type === 'AIvAI' && (
             <div className='grid grid-cols-4 gap-4'>
               <Label htmlFor='alg' className='text-right'>
-                Algorithm (2)
+                Difficulty AI (2)
               </Label>
               <RadioGroup
                 defaultValue={options.algorithm_2}
@@ -109,24 +102,15 @@ export function MainMenu() {
               >
                 <div className='flex items-center space-x-2'>
                   <RadioGroupItem value='Random' id='r2' />
-                  <Label htmlFor='r2'>Random</Label>
+                  <Label htmlFor='r2'>Easy</Label>
                 </div>
                 <div className='flex items-center space-x-2'>
                   <RadioGroupItem value='Minimax' id='mm2' />
-                  <Label htmlFor='mm2'>minimax</Label>
+                  <Label htmlFor='mm2'>Medium</Label>
                 </div>
                 <div className='flex items-center space-x-2'>
                   <RadioGroupItem value='AlphaBeta' id='ab2' />
-                  <Label htmlFor='ab2'>Alpha-beta pruning</Label>
-                </div>
-                <div className='flex items-center space-x-2'>
-                  <RadioGroupItem
-                    value='AlphaBetaWithIterativeDeepening'
-                    id='abit2'
-                  />
-                  <Label htmlFor='abit2'>
-                    Alpha-beta pruning with iterative deepening
-                  </Label>
+                  <Label htmlFor='ab2'>Hard</Label>
                 </div>
               </RadioGroup>
             </div>

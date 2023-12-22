@@ -12,9 +12,6 @@ export interface MinimaxResult {
   move?: Move
 }
 
-//tobedeleted
-let flag = false
-
 export function minimax(
   gameState: GameState,
   depth: number,

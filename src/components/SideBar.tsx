@@ -1,21 +1,21 @@
-import { Player } from '@/types';
-import { useGame, useGameDispatch, useOptions } from '@/hooks/game-hooks';
+import { Player } from '@/types'
+import { useGame, useGameDispatch, useOptions } from '@/hooks/game-hooks'
 import {
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle
-} from '@/components/ui/card';
-import { Separator } from './ui/separator';
-import { Button } from './ui/button';
-import { MainMenu } from './MainMenu';
+  CardTitle,
+} from '@/components/ui/card'
+import { Separator } from './ui/separator'
+import { Button } from './ui/button'
+import { MainMenu } from './MainMenu'
 
 export const SideBar = () => {
-  const state = useGame();
-  const dispatch = useGameDispatch();
-  const [options] = useOptions();
+  const state = useGame()
+  const dispatch = useGameDispatch()
+  const [options] = useOptions()
 
   return (
     <div className='flex flex-col '>
@@ -38,14 +38,18 @@ export const SideBar = () => {
             <span className='text-lg font-bold'>Game Type:</span>{' '}
             {options.game_type}
           </p>
-          <p className='text-center'>
-            <span className='text-lg font-bold'>Algorithm 1:</span>{' '}
-            {options.algorithm_1}
-          </p>
-          <p className='text-center'>
-            <span className='text-lg font-bold'>Algorithm 2:</span>{' '}
-            {options.algorithm_2}
-          </p>
+          {(options.game_type === 'PvAI' || options.game_type === 'AIvAI') && (
+            <p className='text-center'>
+              <span className='text-lg font-bold'>Difficulty 1:</span>{' '}
+              {options.algorithm_1}
+            </p>
+          )}
+          {options.game_type === 'AIvAI' && (
+            <p className='text-center'>
+              <span className='text-lg font-bold'>Difficulty 2:</span>{' '}
+              {options.algorithm_2}
+            </p>
+          )}
           <p>
             <span className='text-lg font-bold'>Game Started:</span>{' '}
             {state.game_started ? 'Yes' : 'No'}
@@ -83,5 +87,5 @@ export const SideBar = () => {
         </CardFooter>
       </Card>
     </div>
-  );
-};
+  )
+}
