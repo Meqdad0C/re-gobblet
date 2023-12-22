@@ -17,6 +17,7 @@ export const SideBar = () => {
   const dispatch = useGameDispatch()
   const [options] = useOptions()
 
+  const is_game_running = state.game_started && !state.game_over
   return (
     <div className='flex flex-col '>
       <Card className='flex flex-col rounded-2xl border-2 border-black md:w-96'>
@@ -86,6 +87,14 @@ export const SideBar = () => {
           )}
         </CardFooter>
       </Card>
+      {is_game_running &&
+        ((options.game_type === 'PvAI' && state.turn === Player.Blue) ||
+          options.game_type === 'AIvAI') && (
+          <div className='flex items-center justify-center gap-2'>
+            <span className='loading loading-infinity loading-lg' />
+            AI is Thinking...
+          </div>
+        )}
     </div>
   )
 }

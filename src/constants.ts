@@ -51,6 +51,3 @@ export const game_initial_state: GameState = {
   game_over: false,
   game_started: false,
 }
-
-
-export const worker_url = './workers/minimaxWorker.ts'

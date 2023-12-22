@@ -7,8 +7,6 @@ import { SideBar } from './components/SideBar'
 import { ai_random_move } from './game-utils'
 import { Inventory, Board } from './components/Board'
 import { MinimaxResult } from './algorithm/min_max'
-import { worker_url } from './constants'
-
 
 interface GameProps {
   worker: Worker
@@ -55,9 +53,8 @@ const Game = ({ worker }: GameProps) => {
       // }
     }
     if (options.game_type === 'AIvAI' && is_game_running) {
-
-      const initialAlpha =Number.POSITIVE_INFINITY;
-      const initialBeta = Number.NEGATIVE_INFINITY;
+      const initialAlpha = Number.POSITIVE_INFINITY
+      const initialBeta = Number.NEGATIVE_INFINITY
       // const result = minimax(state, 1, initialAlpha, initialBeta, true, state.turn);
       // const result = minimax(state, 2, true, state.turn);
       // const random_move = ai_random_move(state)
@@ -71,9 +68,14 @@ const Game = ({ worker }: GameProps) => {
   const handleDragEnd = (e: DragEndEvent) => {
     const { over, active } = e
     const is_game_running = state.game_started && !state.game_over
+    const ai_turn =
+      (options.game_type === 'PvAI' && state.turn === Player.Blue) ||
+      options.game_type === 'AIvAI'
+    const not_current_player_piece = active.data.current!.player !== state.turn
     const dont_do_the_drag =
-      active.data.current!.player !== state.turn || !is_game_running
+      !is_game_running || ai_turn || not_current_player_piece
     if (dont_do_the_drag) return
+    
     if (over && active) {
       const { player, location, stack_number } = active.data.current as Piece_t
       const { row, col } = over.data.current as { row: number; col: number }
@@ -102,9 +104,10 @@ const Game = ({ worker }: GameProps) => {
 
 export default function App() {
   console.log('[App]')
-  const worker = new Worker(new URL(worker_url, import.meta.url), {
-    type: 'module',
-  })
+  const worker = new Worker(
+    new URL('./workers/minimaxWorker', import.meta.url),
+    { type: 'module' },
+  )
   return (
     <>
       <main className='container flex min-h-screen flex-col items-center justify-center gap-2'>
