@@ -229,10 +229,11 @@ const find_three_in_a_row = (state: GameState) => {
 /**
  *
  * @param state - the current game state
- * @returns true if opponent has four in a row, false otherwise
+ * @returns the player who won the game or null if no one won
  */
 const find_four_in_a_row = (state: GameState) => {
   const player = state.turn
+  const opponent = switch_turn(state.turn)
   const board = state.board
 
   // Check horizontal
@@ -248,13 +249,22 @@ const find_four_in_a_row = (state: GameState) => {
         const piece2 = board[i][j + 1][board[i][j + 1].length - 1]
         const piece3 = board[i][j + 2][board[i][j + 2].length - 1]
         const piece4 = board[i][j + 3][board[i][j + 3].length - 1]
-        if (
+        const has_player_won =
           piece1.player === player &&
           piece2.player === player &&
           piece3.player === player &&
           piece4.player === player
-        ) {
-          return true
+        const has_opponent_won =
+          piece1.player === opponent &&
+          piece2.player === opponent &&
+          piece3.player === opponent &&
+          piece4.player === opponent
+
+        if (has_player_won) {
+          return player
+        }
+        if (has_opponent_won) {
+          return opponent
         }
       }
     }
@@ -273,13 +283,23 @@ const find_four_in_a_row = (state: GameState) => {
         const piece2 = board[i + 1][j][board[i + 1][j].length - 1]
         const piece3 = board[i + 2][j][board[i + 2][j].length - 1]
         const piece4 = board[i + 3][j][board[i + 3][j].length - 1]
-        if (
+
+        const has_player_won =
           piece1.player === player &&
           piece2.player === player &&
           piece3.player === player &&
           piece4.player === player
-        ) {
-          return true
+        const has_opponent_won =
+          piece1.player === opponent &&
+          piece2.player === opponent &&
+          piece3.player === opponent &&
+          piece4.player === opponent
+
+        if (has_player_won) {
+          return player
+        }
+        if (has_opponent_won) {
+          return opponent
         }
       }
     }
@@ -298,13 +318,23 @@ const find_four_in_a_row = (state: GameState) => {
         const piece2 = board[i + 1][j + 1][board[i + 1][j + 1].length - 1]
         const piece3 = board[i + 2][j + 2][board[i + 2][j + 2].length - 1]
         const piece4 = board[i + 3][j + 3][board[i + 3][j + 3].length - 1]
-        if (
+
+        const has_player_won =
           piece1.player === player &&
           piece2.player === player &&
           piece3.player === player &&
           piece4.player === player
-        ) {
-          return true
+        const has_opponent_won =
+          piece1.player === opponent &&
+          piece2.player === opponent &&
+          piece3.player === opponent &&
+          piece4.player === opponent
+
+        if (has_player_won) {
+          return player
+        }
+        if (has_opponent_won) {
+          return opponent
         }
       }
     }
@@ -323,22 +353,33 @@ const find_four_in_a_row = (state: GameState) => {
         const piece2 = board[i + 1][j - 1][board[i + 1][j - 1].length - 1]
         const piece3 = board[i + 2][j - 2][board[i + 2][j - 2].length - 1]
         const piece4 = board[i + 3][j - 3][board[i + 3][j - 3].length - 1]
-        if (
+
+        const has_player_won =
           piece1.player === player &&
           piece2.player === player &&
           piece3.player === player &&
           piece4.player === player
-        ) {
-          return true
+        const has_opponent_won =
+          piece1.player === opponent &&
+          piece2.player === opponent &&
+          piece3.player === opponent &&
+          piece4.player === opponent
+
+        if (has_player_won) {
+          return player
+        }
+        if (has_opponent_won) {
+          return opponent
         }
       }
     }
   }
 
-  return false
+  return null
 }
 
-export const is_winning_state = (state: GameState): boolean => {
+export const is_winning_state = (state: GameState): Player | null => {
+  console.log('[is_winning_state]', JSON.parse(JSON.stringify(state)))
   const has_player_won = find_four_in_a_row(state)
   return has_player_won
 }

@@ -39,7 +39,7 @@ export const doMove = (state: GameState, action: Move) => {
   piece.location = to
   to_cell.push(piece)
 
-  state.winner = is_winning_state(state) ? state.turn : null
+  state.winner = is_winning_state(state)
   state.game_over = state.winner !== null
   if (state.game_over) return state
   state.turn = switch_turn(state.turn)
