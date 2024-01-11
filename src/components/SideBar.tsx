@@ -12,7 +12,7 @@ import { Separator } from './ui/separator'
 import { Button } from './ui/button'
 import { MainMenu } from './MainMenu'
 
-export const SideBar = () => {
+export const SideBar = ({ getNewWorker }: { getNewWorker: () => void }) => {
   const state = useGame()
   const dispatch = useGameDispatch()
   const [options] = useOptions()
@@ -42,15 +42,25 @@ export const SideBar = () => {
           {(options.game_type === 'PvAI' || options.game_type === 'AIvAI') && (
             <p className='text-center'>
               <span className='text-lg font-bold'>Difficulty 1:</span>{' '}
-              {options.algorithm_1=='AlphaBeta'?'Hard':options.algorithm_1=='Minimax'?'Easy':
-              options.algorithm_1=='Random'?'Easy':''}
+              {options.algorithm_1 == 'AlphaBeta'
+                ? 'Hard'
+                : options.algorithm_1 == 'Minimax'
+                  ? 'Medium'
+                  : options.algorithm_1 == 'Random'
+                    ? 'Easy'
+                    : ''}
             </p>
           )}
           {options.game_type === 'AIvAI' && (
             <p className='text-center'>
               <span className='text-lg font-bold'>Difficulty 2:</span>{' '}
-              {options.algorithm_2=='AlphaBeta'?'Hard':options.algorithm_2=='Minimax'?'Easy':
-              options.algorithm_2=='Random'?'Easy':''}
+              {options.algorithm_2 == 'AlphaBeta'
+                ? 'Hard'
+                : options.algorithm_2 == 'Minimax'
+                  ? 'Medium'
+                  : options.algorithm_2 == 'Random'
+                    ? 'Easy'
+                    : ''}
             </p>
           )}
           <p>
@@ -77,7 +87,10 @@ export const SideBar = () => {
           ) : (
             <Button
               variant='destructive'
-              onClick={() => dispatch({ type: 'RESTART' })}
+              onClick={() => {
+                getNewWorker()
+                dispatch({ type: 'RESTART' })
+              }}
             >
               Restart Game
             </Button>
@@ -85,7 +98,14 @@ export const SideBar = () => {
           {state.game_started !== true ? (
             <MainMenu />
           ) : (
-            <Button onClick={() => dispatch({ type: 'END' })}>End Game</Button>
+            <Button
+              onClick={() => {
+                getNewWorker()
+                dispatch({ type: 'END' })
+              }}
+            >
+              End Game
+            </Button>
           )}
         </CardFooter>
       </Card>
