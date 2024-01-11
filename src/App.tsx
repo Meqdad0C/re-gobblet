@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react'
 import { SideBar } from './components/SideBar'
 import { ai_random_move } from './game-utils'
 import { Inventory, Board } from './components/Board'
-import { MinimaxResult, iterativeDeepeningMinimax, minimax_with_pruning } from './algorithm/min_max'
+import { MinimaxResult} from './algorithm/min_max'
 
 
 interface GameProps {
@@ -23,7 +23,7 @@ const Game = ({ minimaxWorker, alphaBetaWorker, iterativeDeepeningWorker}: GameP
   const dispatch = useGameDispatch()
   const state = useGame()
   const [options] = useOptions()
-
+  console.log(state)
   minimaxWorker.onmessage = function (e: MessageEvent<MinimaxResult>) {
     const result = e.data
     console.log('[Best move]', result.move)
@@ -162,9 +162,7 @@ const Game = ({ minimaxWorker, alphaBetaWorker, iterativeDeepeningWorker}: GameP
         let alpha = Number.NEGATIVE_INFINITY;
         let beta = Number.POSITIVE_INFINITY;
         // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })  
-        setTimeout(() => {
-          alphaBetaWorker.postMessage({state,depth:2 ,alpha,beta, maximizingPlayer: true}) 
-        }, 500);
+        alphaBetaWorker.postMessage({state,depth:2 ,alpha,beta, maximizingPlayer: true}) 
       }
     }
   }
