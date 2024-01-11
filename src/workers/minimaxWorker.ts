@@ -1,5 +1,5 @@
 import { minimax } from '@/algorithm/min_max'
-import { GameState, Player } from '@/types'
+import { GameState } from '@/types'
 
 export type MinimaxProps = {
   state: GameState

@@ -1,6 +1,6 @@
-import { Board, Stack, Move, Player, GameState } from '@/types'
+import { Player, GameState } from '@/types'
 import { minimax_with_pruning } from './alphaBeta'
-const INFINITY: number = Number.POSITIVE_INFINITY
+// const INFINITY: number = Number.POSITIVE_INFINITY
 
 export function iterativeDeepeningMinimax(
   gameState: GameState,
@@ -10,7 +10,7 @@ export function iterativeDeepeningMinimax(
   timeLimit: number,
 ) {
   let bestMove = null
-  let startTime = Date.now()
+  const startTime = Date.now()
   let bestScore = isMaximizingPlayer ? -Infinity : Infinity
   let totalRecursionCount = 0
 

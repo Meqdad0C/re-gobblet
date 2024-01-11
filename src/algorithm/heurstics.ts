@@ -1,6 +1,5 @@
-import { Board, Stack, Move, Player, GameState } from '@/types'
-import { getAllSuccesorStates, switch_turn } from '@/game-utils'
-const INFINITY: number = Number.POSITIVE_INFINITY
+import { Board, Stack, Player, GameState } from '@/types'
+// const INFINITY: number = Number.POSITIVE_INFINITY
 
 export function heuristic_value_of(
   gameState: GameState,
@@ -11,7 +10,7 @@ export function heuristic_value_of(
   // Evaluate lines for scoring potential
 
   //Here the turn represents the player color who plays as AI
-  let turn = currentPlayer
+  const turn = currentPlayer
   score += evaluateLines(gameState.board, turn)
 
   return score
@@ -100,7 +99,7 @@ function getColumn(board: Board, colIndex: number): Array<Stack> {
 }
 
 function getDiagonal(board: Board, mainDiagonal: boolean): Array<Stack> {
-  let diagonal = []
+  const diagonal = []
   for (let i = 0; i < 4; i++) {
     diagonal.push(mainDiagonal ? board[i][i] : board[i][3 - i])
   }

@@ -1,5 +1,5 @@
 import { iterativeDeepeningMinimax } from '@/algorithm/iterativeDeepening'
-import { GameState, Player } from '@/types'
+import { GameState } from '@/types'
 
 export type IterativeDeepeningProps = {
   state: GameState

@@ -7,7 +7,6 @@ import {
   switch_turn,
   getPossibleMoves,
 } from '@/game-utils'
-import { minimax } from '@/algorithm/min_max'
 
 export const gameReducer = (state: GameState, action: GameAction) => {
   switch (action.type) {

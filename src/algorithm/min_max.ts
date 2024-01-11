@@ -1,7 +1,7 @@
-import { Board, Stack, Move, Player, GameState } from '@/types'
-import { getAllSuccesorStates, switch_turn } from '@/game-utils'
+import {  Move, Player, GameState } from '@/types'
+import { getAllSuccesorStates } from '@/game-utils'
 import { heuristic_value_of } from './heurstics'
-const INFINITY: number = Number.POSITIVE_INFINITY
+// const INFINITY: number = Number.POSITIVE_INFINITY
 
 export interface MinimaxResult {
   score: number

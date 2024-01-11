@@ -1,9 +1,4 @@
-import {
-  DndContext,
-  DragEndEvent,
-  DragOverlay,
-  DragStartEvent,
-} from '@dnd-kit/core'
+import { DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core'
 import { Player, Piece_t } from '@/types'
 import { useGame, useGameDispatch, useOptions } from '@/hooks/game-hooks'
 import { WinnerDialog } from './components/winner-dialog'
@@ -11,15 +6,18 @@ import { useEffect, useState } from 'react'
 import { SideBar } from './components/SideBar'
 import { ai_random_move } from './game-utils'
 import { Inventory, Board } from './components/Board'
-import { MinimaxResult} from './algorithm/min_max'
-
+import { MinimaxResult } from './algorithm/min_max'
 
 interface GameProps {
   minimaxWorker: Worker
-  alphaBetaWorker :Worker
+  alphaBetaWorker: Worker
   iterativeDeepeningWorker: Worker
 }
-const Game = ({ minimaxWorker, alphaBetaWorker, iterativeDeepeningWorker}: GameProps) => {
+const Game = ({
+  minimaxWorker,
+  alphaBetaWorker,
+  iterativeDeepeningWorker,
+}: GameProps) => {
   const dispatch = useGameDispatch()
   const state = useGame()
   const [options] = useOptions()
@@ -28,9 +26,9 @@ const Game = ({ minimaxWorker, alphaBetaWorker, iterativeDeepeningWorker}: GameP
     const result = e.data
     console.log('[Best move]', result.move)
     console.log('[Score]', result.score)
-    console.log('[Recursion Count]',result.recursionCount)
+    console.log('[Recursion Count]', result.recursionCount)
 
-    if (result.move ) {
+    if (result.move) {
       dispatch(result.move)
     }
   }
@@ -38,18 +36,20 @@ const Game = ({ minimaxWorker, alphaBetaWorker, iterativeDeepeningWorker}: GameP
     const result = e.data
     console.log('[Best move]', result.move)
     console.log('[Score]', result.score)
-    console.log('[Recursion Count]',result.recursionCount)
+    console.log('[Recursion Count]', result.recursionCount)
 
     if (result.move) {
       dispatch(result.move)
     }
   }
 
-  iterativeDeepeningWorker.onmessage = function (e: MessageEvent<MinimaxResult>) {
+  iterativeDeepeningWorker.onmessage = function (
+    e: MessageEvent<MinimaxResult>,
+  ) {
     const result = e.data
     console.log('[Best move]', result.move)
     console.log('[Score]', result.score)
-    console.log('[Recursion Count]',result.recursionCount)
+    console.log('[Recursion Count]', result.recursionCount)
 
     if (result.move) {
       dispatch(result.move)
@@ -65,107 +65,103 @@ const Game = ({ minimaxWorker, alphaBetaWorker, iterativeDeepeningWorker}: GameP
       state.turn === Player.Blue &&
       is_game_running
     ) {
-
-      if(options.algorithm_1 === 'Random'){  
-
+      if (options.algorithm_1 === 'Random') {
         const random_move = ai_random_move(state)
         setTimeout(() => {
-          dispatch(random_move);
-        }, 500);
-
-      }
-      else if(options.algorithm_1 === 'Minimax'){
-        
+          dispatch(random_move)
+        }, 500)
+      } else if (options.algorithm_1 === 'Minimax') {
+        minimaxWorker.postMessage({ state, depth: 1, maximizingPlayer: true })
+      } else if (options.algorithm_1 === 'AlphaBeta') {
         // Initialize alpha and beta
-        let alpha = Number.NEGATIVE_INFINITY;
-        let beta = Number.POSITIVE_INFINITY;
+        const alpha = Number.NEGATIVE_INFINITY
+        const beta = Number.POSITIVE_INFINITY
+        // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })
 
-        // alphaBetaWorker.postMessage({state,depth:1 ,alpha,beta, maximizingPlayer: true})
-        minimaxWorker.postMessage({ state, depth: 1, maximizingPlayer: true })      
-      }
-      else if(options.algorithm_1 === 'AlphaBeta'){
-        // Initialize alpha and beta
-        let alpha = Number.NEGATIVE_INFINITY;
-        let beta = Number.POSITIVE_INFINITY;
-        // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })  
-
-
-        alphaBetaWorker.postMessage({state,depth:2 ,alpha,beta, maximizingPlayer: true})
+        alphaBetaWorker.postMessage({
+          state,
+          depth: 2,
+          alpha,
+          beta,
+          maximizingPlayer: true,
+        })
 
         // //time limit in milli seconds
         // iterativeDeepeningWorker.postMessage({state,depth:2 ,alpha,beta, maximizingPlayer: true, timeLimit:2000 })
-     
       }
-      
     }
     if (options.game_type === 'AIvAI' && is_game_running) {
-
-      if(state.turn === Player.Red){
-
-        if(options.algorithm_1 === 'Random' ){
-
-          const random_move = ai_random_move(state);
+      if (state.turn === Player.Red) {
+        if (options.algorithm_1 === 'Random') {
+          const random_move = ai_random_move(state)
 
           setTimeout(() => {
-            dispatch(random_move);
-          }, 500);
-
-        }
-
-        else if(options.algorithm_1 === 'Minimax'){
-
+            dispatch(random_move)
+          }, 500)
+        } else if (options.algorithm_1 === 'Minimax') {
           // Initialize alpha and beta
-          let alpha = Number.NEGATIVE_INFINITY;
-          let beta = Number.POSITIVE_INFINITY;
-          // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })  
+          const alpha = Number.NEGATIVE_INFINITY
+          const beta = Number.POSITIVE_INFINITY
+          // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })
           setTimeout(() => {
-            alphaBetaWorker.postMessage({state,depth:1 ,alpha,beta, maximizingPlayer: true}) 
-          }, 500);
-        }
-        else if(options.algorithm_1 === 'AlphaBeta'){
+            alphaBetaWorker.postMessage({
+              state,
+              depth: 1,
+              alpha,
+              beta,
+              maximizingPlayer: true,
+            })
+          }, 500)
+        } else if (options.algorithm_1 === 'AlphaBeta') {
           // Initialize alpha and beta
-          let alpha = Number.NEGATIVE_INFINITY;
-          let beta = Number.POSITIVE_INFINITY;
-          // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })  
+          const alpha = Number.NEGATIVE_INFINITY
+          const beta = Number.POSITIVE_INFINITY
+          // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })
           setTimeout(() => {
-            alphaBetaWorker.postMessage({state,depth:2 ,alpha,beta, maximizingPlayer: true}) 
-          }, 500);
+            alphaBetaWorker.postMessage({
+              state,
+              depth: 2,
+              alpha,
+              beta,
+              maximizingPlayer: true,
+            })
+          }, 500)
         }
-      }
-    
-    else if(state.turn === Player.Blue){
-
-      if(options.algorithm_2 === 'Random' ){
-
-        const random_move = ai_random_move(state);
-        setTimeout(() => {
-          dispatch(random_move);
-        }, 500);
-
-      }
-
-      else if(options.algorithm_2 === 'Minimax'){
-
-        // Initialize alpha and beta
-        let alpha = Number.NEGATIVE_INFINITY;
-        let beta = Number.POSITIVE_INFINITY;
-        // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })  
-        setTimeout(() => {
-          alphaBetaWorker.postMessage({state,depth:1 ,alpha,beta, maximizingPlayer: true}) 
-        }, 500);
-
-          
-
-      }
-      else if(options.algorithm_2 === 'AlphaBeta'){
-        // Initialize alpha and beta
-        let alpha = Number.NEGATIVE_INFINITY;
-        let beta = Number.POSITIVE_INFINITY;
-        // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })  
-        alphaBetaWorker.postMessage({state,depth:2 ,alpha,beta, maximizingPlayer: true}) 
+      } else if (state.turn === Player.Blue) {
+        if (options.algorithm_2 === 'Random') {
+          const random_move = ai_random_move(state)
+          setTimeout(() => {
+            dispatch(random_move)
+          }, 500)
+        } else if (options.algorithm_2 === 'Minimax') {
+          // Initialize alpha and beta
+          const alpha = Number.NEGATIVE_INFINITY
+          const beta = Number.POSITIVE_INFINITY
+          // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })
+          setTimeout(() => {
+            alphaBetaWorker.postMessage({
+              state,
+              depth: 1,
+              alpha,
+              beta,
+              maximizingPlayer: true,
+            })
+          }, 500)
+        } else if (options.algorithm_2 === 'AlphaBeta') {
+          // Initialize alpha and beta
+          const alpha = Number.NEGATIVE_INFINITY
+          const beta = Number.POSITIVE_INFINITY
+          // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })
+          alphaBetaWorker.postMessage({
+            state,
+            depth: 2,
+            alpha,
+            beta,
+            maximizingPlayer: true,
+          })
+        }
       }
     }
-  }
   }, [is_game_running, state.turn])
 
   const handleDragEnd = (e: DragEndEvent) => {
@@ -250,35 +246,36 @@ const Game = ({ minimaxWorker, alphaBetaWorker, iterativeDeepeningWorker}: GameP
 //   )
 // }
 export default function App() {
-  const [minimaxWorker, setMinimaxWorker] = useState<Worker | null>(null);
-  const [alphaBetaWorker, setAlphaBetaWorker] = useState<Worker | null>(null);
-  const [iterativeDeepeningWorker, setIterativeDeepeningWorker] = useState<Worker | null>(null);
+  const [minimaxWorker, setMinimaxWorker] = useState<Worker | null>(null)
+  const [alphaBetaWorker, setAlphaBetaWorker] = useState<Worker | null>(null)
+  const [iterativeDeepeningWorker, setIterativeDeepeningWorker] =
+    useState<Worker | null>(null)
 
   useEffect(() => {
     const newMinimaxWorker = new Worker(
       new URL('./workers/minimaxWorker', import.meta.url),
       { type: 'module' },
-    );
-    setMinimaxWorker(newMinimaxWorker);
+    )
+    setMinimaxWorker(newMinimaxWorker)
 
     const newAlphaBetaWorker = new Worker(
       new URL('./workers/alphaBetaWorker', import.meta.url),
       { type: 'module' },
-    );
-    setAlphaBetaWorker(newAlphaBetaWorker);
+    )
+    setAlphaBetaWorker(newAlphaBetaWorker)
 
     const newIterativeDeepeningWorker = new Worker(
       new URL('./workers/iterativeDeepeningWorker', import.meta.url),
       { type: 'module' },
-    );
-    setIterativeDeepeningWorker(newIterativeDeepeningWorker);
-    
+    )
+    setIterativeDeepeningWorker(newIterativeDeepeningWorker)
+
     return () => {
-      if (newMinimaxWorker) newMinimaxWorker.terminate();
-      if (newAlphaBetaWorker) newAlphaBetaWorker.terminate();
-      if (newIterativeDeepeningWorker) newIterativeDeepeningWorker.terminate();
-    };
-  }, []);
+      if (newMinimaxWorker) newMinimaxWorker.terminate()
+      if (newAlphaBetaWorker) newAlphaBetaWorker.terminate()
+      if (newIterativeDeepeningWorker) newIterativeDeepeningWorker.terminate()
+    }
+  }, [])
 
   return (
     <div data-theme='cupcake'>
@@ -287,8 +284,8 @@ export default function App() {
         <div className='flex flex-col gap-2 md:flex-row'>
           <WinnerDialog />
           {minimaxWorker && alphaBetaWorker && iterativeDeepeningWorker && (
-            <Game 
-              minimaxWorker={minimaxWorker} 
+            <Game
+              minimaxWorker={minimaxWorker}
               alphaBetaWorker={alphaBetaWorker}
               iterativeDeepeningWorker={iterativeDeepeningWorker}
             />
