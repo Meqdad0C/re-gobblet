@@ -7,7 +7,6 @@ import { SideBar } from './components/SideBar'
 import { ai_random_move, createWorker } from './game-utils'
 import { Inventory, Board } from './components/Board'
 import { GameWorkerResult } from './workers/game-worker'
-import { Button } from './components/ui/button'
 
 type GameProps = {
   gameWorker: Worker
