@@ -30,7 +30,7 @@ const Game = ({ minimaxWorker, alphaBetaWorker, iterativeDeepeningWorker}: GameP
     console.log('[Score]', result.score)
     console.log('[Recursion Count]',result.recursionCount)
 
-    if (result.move) {
+    if (result.move ) {
       dispatch(result.move)
     }
   }
@@ -272,7 +272,7 @@ export default function App() {
       { type: 'module' },
     );
     setIterativeDeepeningWorker(newIterativeDeepeningWorker);
-
+    
     return () => {
       if (newMinimaxWorker) newMinimaxWorker.terminate();
       if (newAlphaBetaWorker) newAlphaBetaWorker.terminate();

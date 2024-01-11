@@ -43,10 +43,12 @@ export const doMove = (state: GameState, action: Move) => {
   piece.location = to
   to_cell.push(piece)
 
-  if (state.boardHistory.length > 10) {
+  if (state.boardHistory.length >= 6) {
     state.boardHistory.shift()
   }
-  state.boardHistory.push(state.board)
+  if (state.turn == Player.Blue) {
+    state.boardHistory.push(state.board)
+  }
   // after making a move, check if there is a draw
   if (isRepeatedState(state)) {
     console.log('[doMove] draw declared')

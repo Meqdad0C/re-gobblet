@@ -468,28 +468,34 @@ export function isRepeatedState(state: GameState): boolean {
   const boardHistory = state.boardHistory
 
   // Check if there are at least 10 moves in the moveHistory
-  if (boardHistory.length < 10) {
+  if (boardHistory.length < 6) {
     return false
   }
 
   // Get the last 10 boards from the moveHistory
-  const lastEightBoards = boardHistory.slice(-10)
+  const lastEightBoards = boardHistory
 
-  let identicalsNumber
+  // let identicalsNumber
 
   // Check if there are 3 identical boards in the lastSixBoards array
-  for (let i = 0; i < 9; i++) {
-    identicalsNumber = 0
-    for (let j = i + 1; j < 10; j++) {
-      if (areBoardsIdentical(lastEightBoards[i], lastEightBoards[j])) {
-        identicalsNumber++
-        console.log(identicalsNumber)
-      }
-    }
-    if (identicalsNumber >= 2) {
-      return true
-    }
-  }
+  return (
+    areBoardsIdentical(lastEightBoards[0], lastEightBoards[2]) &&
+    areBoardsIdentical(lastEightBoards[2], lastEightBoards[4]) &&
+    areBoardsIdentical(lastEightBoards[1], lastEightBoards[3]) &&
+    areBoardsIdentical(lastEightBoards[3], lastEightBoards[5])
+  )
+  // for (let i = 0; i < lastEightBoards.length - 1; i++) {
+  //   identicalsNumber = 0
+  //   for (let j = i + 1; j < lastEightBoards.length; j++) {
+  //     if (areBoardsIdentical(lastEightBoards[i], lastEightBoards[j])) {
+  //       identicalsNumber++
+  //       console.log(identicalsNumber)
+  //     }
+  //   }
+  //   if (identicalsNumber >= 2) {
+  //     return true
+  //   }
+  // }
   return false
 }
 

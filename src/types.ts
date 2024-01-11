@@ -3,8 +3,8 @@ export enum Player {
   Blue,
 }
 export enum Draw {
-  False,
-  True,
+  False = 2,
+  True = 3,
 }
 
 export enum Size {
