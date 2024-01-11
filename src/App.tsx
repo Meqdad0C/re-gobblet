@@ -2,7 +2,7 @@ import { DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core'
 import { Player, Piece_t } from '@/types'
 import { useGame, useGameDispatch, useOptions } from '@/hooks/game-hooks'
 import { WinnerDialog } from './components/winner-dialog'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { SideBar } from './components/SideBar'
 import { ai_random_move } from './game-utils'
 import { Inventory, Board } from './components/Board'
@@ -10,134 +10,87 @@ import { GameWorkerResult } from './workers/game-worker'
 
 type GameProps = {
   gameWorker: Worker
+  delay_ref: React.MutableRefObject<number | null>
 }
 
-const Game = ({ gameWorker }: GameProps) => {
+const delayed = (fn: () => void, ms: number) => {
+  return setTimeout(fn, ms) as unknown as number
+}
+
+const Game = ({ gameWorker, delay_ref }: GameProps) => {
   const dispatch = useGameDispatch()
   const state = useGame()
   const [options] = useOptions()
 
+  const doRandom = () => {
+    delay_ref.current = delayed(() => {
+      dispatch(ai_random_move(state))
+    }, 500)
+  }
+
+  const doMinimax = () => {
+    delay_ref.current = delayed(() => {
+      gameWorker.postMessage({
+        type: 'alphaBeta',
+        state,
+        depth: 1,
+        maximizingPlayer: true,
+      })
+    }, 500)
+  }
+
+  const doAlphaBeta = () => {
+    gameWorker.postMessage({
+      type: 'alphaBeta',
+      state,
+      depth: 2,
+      alpha: Number.NEGATIVE_INFINITY,
+      beta: Number.POSITIVE_INFINITY,
+      maximizingPlayer: true,
+    })
+  }
+
+  // @ts-expect-error TODO:
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const doIterativeDeepening = () => {
+    gameWorker.postMessage({
+      type: 'iterativeDeepening',
+      state,
+      depth: 2,
+      alpha: Number.NEGATIVE_INFINITY,
+      beta: Number.POSITIVE_INFINITY,
+      maximizingPlayer: true,
+      timeLimit: 2000,
+    })
+  }
+
   console.log('[game state]', state)
   gameWorker.onmessage = function (e: MessageEvent<GameWorkerResult>) {
     const result = e.data
-    /*     console.log('[Best move]', result.move)
-          console.log('[Recursion Count]', result.recursionCount) 
-    */
-    console.log('[Score]', result.score)
-
     if (result.move) {
       dispatch(result.move)
     }
   }
 
   const is_game_running = state.game_started && !state.game_over
+  const is_game_against_ai =
+    options.game_type === 'PvAI' || options.game_type === 'AIvAI'
+  const is_ai_match = options.game_type === 'AIvAI'
   useEffect(() => {
-    if (
-      options.game_type === 'PvAI' &&
-      state.turn === Player.Blue &&
-      is_game_running
-    ) {
-      if (options.algorithm_1 === 'Random') {
-        const random_move = ai_random_move(state)
-        setTimeout(() => {
-          dispatch(random_move)
-        }, 500)
-      } else if (options.algorithm_1 === 'Minimax') {
-        gameWorker.postMessage({
-          type: 'alphaBeta',
-          state,
-          depth: 1,
-          maximizingPlayer: true,
-        })
-      } else if (options.algorithm_1 === 'AlphaBeta') {
-        // Initialize alpha and beta
-        const alpha = Number.NEGATIVE_INFINITY
-        const beta = Number.POSITIVE_INFINITY
-        // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })
-
-        gameWorker.postMessage({
-          type: 'alphaBeta',
-          state,
-          depth: 2,
-          alpha,
-          beta,
-          maximizingPlayer: true,
-        })
-
-        // //time limit in milli seconds
-        // iterativeDeepeningWorker.postMessage({state,depth:2 ,alpha,beta, maximizingPlayer: true, timeLimit:2000 })
-      }
-    }
-    if (options.game_type === 'AIvAI' && is_game_running) {
-      if (state.turn === Player.Red) {
-        if (options.algorithm_1 === 'Random') {
-          const random_move = ai_random_move(state)
-
-          setTimeout(() => {
-            dispatch(random_move)
-          }, 500)
-        } else if (options.algorithm_1 === 'Minimax') {
-          // Initialize alpha and beta
-          const alpha = Number.NEGATIVE_INFINITY
-          const beta = Number.POSITIVE_INFINITY
-          // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })
-          gameWorker.postMessage({
-            type: 'alphaBeta',
-            state,
-            depth: 1,
-            alpha,
-            beta,
-            maximizingPlayer: true,
-          })
-        } else if (options.algorithm_1 === 'AlphaBeta') {
-          // Initialize alpha and beta
-          const alpha = Number.NEGATIVE_INFINITY
-          const beta = Number.POSITIVE_INFINITY
-          // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })
-          gameWorker.postMessage({
-            type: 'alphaBeta',
-            state,
-            depth: 2,
-            alpha,
-            beta,
-            maximizingPlayer: true,
-          })
-        }
-      } else if (state.turn === Player.Blue) {
-        if (options.algorithm_2 === 'Random') {
-          const random_move = ai_random_move(state)
-          setTimeout(() => {
-            dispatch(random_move)
-          }, 500)
-        } else if (options.algorithm_2 === 'Minimax') {
-          // Initialize alpha and beta
-          const alpha = Number.NEGATIVE_INFINITY
-          const beta = Number.POSITIVE_INFINITY
-          // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })
-          setTimeout(() => {
-            gameWorker.postMessage({
-              type: 'alphaBeta',
-              state,
-              depth: 1,
-              alpha,
-              beta,
-              maximizingPlayer: true,
-            })
-          }, 500)
-        } else if (options.algorithm_2 === 'AlphaBeta') {
-          // Initialize alpha and beta
-          const alpha = Number.NEGATIVE_INFINITY
-          const beta = Number.POSITIVE_INFINITY
-          // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })
-          gameWorker.postMessage({
-            type: 'alphaBeta',
-            state,
-            depth: 2,
-            alpha,
-            beta,
-            maximizingPlayer: true,
-          })
-        }
+    if (!is_game_running || !is_game_against_ai) return
+    if (is_ai_match || state.turn === Player.Blue) {
+      const algorithm =
+        state.turn === Player.Red ? options.algorithm_1 : options.algorithm_2
+      switch (algorithm) {
+        case 'Random':
+          doRandom()
+          break
+        case 'Minimax':
+          doMinimax()
+          break
+        case 'AlphaBeta':
+          doAlphaBeta()
+          break
       }
     }
   }, [is_game_running, state.turn])
@@ -204,26 +157,6 @@ const Game = ({ gameWorker }: GameProps) => {
   )
 }
 
-// export default function App() {
-//   console.log('[App]')
-//   const worker = new Worker(
-//     new URL('./workers/minimaxWorker', import.meta.url),
-//     { type: 'module' },
-//   )
-//   return (
-//   <>
-//       <main className='container flex min-h-screen flex-col items-center justify-center gap-2'>
-//         <h1 className='text-center text-5xl font-bold'>Gobblet!</h1>
-//         <div className='flex flex-col gap-2 md:flex-row'>
-//           <WinnerDialog />
-//           <Game worker={worker} />
-//           <SideBar />
-//         </div>
-//       </main>
-//     </>
-//   )
-// }
-
 const createWorker = () => {
   const worker = new Worker(new URL('./workers/game-worker', import.meta.url), {
     type: 'module',
@@ -234,12 +167,16 @@ const createWorker = () => {
 export default function App() {
   console.log('[App]')
   const [gameWorker, setGameWorker] = useState<Worker>(createWorker())
+  const delay_ref = useRef<number | null>(0)
 
   const getNewWorker = () => {
     if (gameWorker) {
       console.log('[getNewWorker] terminate', gameWorker)
       gameWorker.terminate()
     }
+    if (delay_ref.current) clearTimeout(delay_ref.current)
+    delay_ref.current = 0
+
     const worker = createWorker()
     setGameWorker(worker)
   }
@@ -250,7 +187,7 @@ export default function App() {
         <h1 className='text-center text-5xl font-bold'>Gobblet!</h1>
         <div className='flex flex-col gap-2 md:flex-row'>
           <WinnerDialog />
-          <Game gameWorker={gameWorker} />
+          <Game gameWorker={gameWorker} delay_ref={delay_ref} />
           <SideBar getNewWorker={getNewWorker} />
         </div>
       </main>

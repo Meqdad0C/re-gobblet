@@ -86,15 +86,15 @@ export const SideBar = ({ getNewWorker }: { getNewWorker: () => void }) => {
             </Button>
           ) : (
             options.game_type !== 'AIvAI' && (
-            <Button
-              variant='destructive'
-              onClick={() => {
-                getNewWorker()
-                dispatch({ type: 'RESTART' })
-              }}
-            >
-              Restart Game
-            </Button>
+              <Button
+                variant='destructive'
+                onClick={() => {
+                  getNewWorker()
+                  dispatch({ type: 'RESTART' })
+                }}
+              >
+                Restart Game
+              </Button>
             )
           )}
           {state.game_started !== true ? (
