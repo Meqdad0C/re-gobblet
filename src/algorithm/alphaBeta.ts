@@ -8,15 +8,30 @@ export interface MinimaxResult {
   recursionCount: number
   move?: Move
 }
-
-export function minimax(
+export function minimax_with_pruning(
   gameState: GameState,
   depth: number,
+  alpha: number,
+  beta: number,
   isMaximizingPlayer: boolean,
   turn: Player,
   recursionCount: number = 0,
+  startTime?: number,
+  timeLimit?: number,
 ): MinimaxResult {
   recursionCount++
+
+  const currentTime = Date.now()
+  if (startTime && timeLimit) {
+    if (currentTime - startTime > timeLimit) {
+      // Time limit exceeded
+      return {
+        score: isMaximizingPlayer ? -Infinity : Infinity,
+        move: undefined,
+        recursionCount,
+      }
+    }
+  }
 
   if (depth === 0 || gameState.game_over) {
     return { score: heuristic_value_of(gameState, turn), recursionCount }
@@ -25,19 +40,23 @@ export function minimax(
   let bestMove: Move | undefined
   let totalRecursionCount = recursionCount // Accumulator for all recursive calls
 
-  const successorStates = getAllSuccesorStates(gameState)
-
   if (isMaximizingPlayer) {
     let maxEval = -Infinity
 
-    successorStates.forEach((successorState) => {
-      successorState.states.forEach((stateMovePair) => {
-        const evaluation = minimax(
+    const successorStates = getAllSuccesorStates(gameState)
+
+    for (const successorState of successorStates) {
+      for (const stateMovePair of successorState.states) {
+        const evaluation = minimax_with_pruning(
           stateMovePair.state,
           depth - 1,
+          alpha,
+          beta,
           false,
           turn,
           recursionCount,
+          startTime,
+          timeLimit,
         )
         totalRecursionCount += evaluation.recursionCount - recursionCount // Aggregate recursion count
 
@@ -45,8 +64,15 @@ export function minimax(
           maxEval = evaluation.score
           bestMove = stateMovePair.move
         }
-      })
-    })
+        alpha = Math.max(alpha, evaluation.score)
+        if (beta <= alpha) {
+          break // Beta cut-off
+        }
+      }
+      if (beta <= alpha) {
+        break // Beta cut-off
+      }
+    }
 
     return {
       score: maxEval,
@@ -56,14 +82,20 @@ export function minimax(
   } else {
     let minEval = Infinity
 
-    successorStates.forEach((successorState) => {
-      successorState.states.forEach((stateMovePair) => {
-        const evaluation = minimax(
+    const successorStates = getAllSuccesorStates(gameState)
+
+    for (const successorState of successorStates) {
+      for (const stateMovePair of successorState.states) {
+        const evaluation = minimax_with_pruning(
           stateMovePair.state,
           depth - 1,
+          alpha,
+          beta,
           true,
           turn,
           recursionCount,
+          startTime,
+          timeLimit,
         )
         totalRecursionCount += evaluation.recursionCount - recursionCount // Aggregate recursion count
 
@@ -71,8 +103,15 @@ export function minimax(
           minEval = evaluation.score
           bestMove = stateMovePair.move
         }
-      })
-    })
+        beta = Math.min(beta, evaluation.score)
+        if (beta <= alpha) {
+          break // Alpha cut-off
+        }
+      }
+      if (beta <= alpha) {
+        break // Alpha cut-off
+      }
+    }
 
     return {
       score: minEval,

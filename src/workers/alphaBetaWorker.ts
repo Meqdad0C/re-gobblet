@@ -1,4 +1,4 @@
-import { minimax_with_pruning } from '@/algorithm/min_max'
+import { minimax_with_pruning } from '@/algorithm/alphaBeta'
 import { GameState, Player } from '@/types'
 
 export type AlphaBetaProps = {
