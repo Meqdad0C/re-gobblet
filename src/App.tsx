@@ -4,59 +4,32 @@ import { useGame, useGameDispatch, useOptions } from '@/hooks/game-hooks'
 import { WinnerDialog } from './components/winner-dialog'
 import { useEffect, useState } from 'react'
 import { SideBar } from './components/SideBar'
-import { ai_random_move } from './game-utils'
+import { ai_random_move, createWorker } from './game-utils'
 import { Inventory, Board } from './components/Board'
-import { MinimaxResult } from './algorithm/min_max'
+import { GameWorkerResult } from './workers/game-worker'
+import { Button } from './components/ui/button'
 
-interface GameProps {
-  minimaxWorker: Worker
-  alphaBetaWorker: Worker
-  iterativeDeepeningWorker: Worker
+type GameProps = {
+  gameWorker: Worker
 }
-const Game = ({
-  minimaxWorker,
-  alphaBetaWorker,
-  iterativeDeepeningWorker,
-}: GameProps) => {
+
+const Game = ({ gameWorker }: GameProps) => {
   const dispatch = useGameDispatch()
   const state = useGame()
   const [options] = useOptions()
-  console.log(state)
-  minimaxWorker.onmessage = function (e: MessageEvent<MinimaxResult>) {
+
+  console.log('[game state]', state)
+  gameWorker.onmessage = function (e: MessageEvent<GameWorkerResult>) {
     const result = e.data
-    console.log('[Best move]', result.move)
+    /*     console.log('[Best move]', result.move)
+          console.log('[Recursion Count]', result.recursionCount) 
+    */
     console.log('[Score]', result.score)
-    console.log('[Recursion Count]', result.recursionCount)
 
     if (result.move) {
       dispatch(result.move)
     }
   }
-  alphaBetaWorker.onmessage = function (e: MessageEvent<MinimaxResult>) {
-    const result = e.data
-    console.log('[Best move]', result.move)
-    console.log('[Score]', result.score)
-    console.log('[Recursion Count]', result.recursionCount)
-
-    if (result.move) {
-      dispatch(result.move)
-    }
-  }
-
-  iterativeDeepeningWorker.onmessage = function (
-    e: MessageEvent<MinimaxResult>,
-  ) {
-    const result = e.data
-    console.log('[Best move]', result.move)
-    console.log('[Score]', result.score)
-    console.log('[Recursion Count]', result.recursionCount)
-
-    if (result.move) {
-      dispatch(result.move)
-    }
-  }
-
-  // console.log('[game state]', state)
 
   const is_game_running = state.game_started && !state.game_over
   useEffect(() => {
@@ -71,14 +44,20 @@ const Game = ({
           dispatch(random_move)
         }, 500)
       } else if (options.algorithm_1 === 'Minimax') {
-        minimaxWorker.postMessage({ state, depth: 1, maximizingPlayer: true })
+        gameWorker.postMessage({
+          type: 'alphaBeta',
+          state,
+          depth: 1,
+          maximizingPlayer: true,
+        })
       } else if (options.algorithm_1 === 'AlphaBeta') {
         // Initialize alpha and beta
         const alpha = Number.NEGATIVE_INFINITY
         const beta = Number.POSITIVE_INFINITY
         // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })
 
-        alphaBetaWorker.postMessage({
+        gameWorker.postMessage({
+          type: 'alphaBeta',
           state,
           depth: 2,
           alpha,
@@ -103,29 +82,27 @@ const Game = ({
           const alpha = Number.NEGATIVE_INFINITY
           const beta = Number.POSITIVE_INFINITY
           // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })
-          setTimeout(() => {
-            alphaBetaWorker.postMessage({
-              state,
-              depth: 1,
-              alpha,
-              beta,
-              maximizingPlayer: true,
-            })
-          }, 500)
+          gameWorker.postMessage({
+            type: 'alphaBeta',
+            state,
+            depth: 1,
+            alpha,
+            beta,
+            maximizingPlayer: true,
+          })
         } else if (options.algorithm_1 === 'AlphaBeta') {
           // Initialize alpha and beta
           const alpha = Number.NEGATIVE_INFINITY
           const beta = Number.POSITIVE_INFINITY
           // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })
-          setTimeout(() => {
-            alphaBetaWorker.postMessage({
-              state,
-              depth: 2,
-              alpha,
-              beta,
-              maximizingPlayer: true,
-            })
-          }, 500)
+          gameWorker.postMessage({
+            type: 'alphaBeta',
+            state,
+            depth: 2,
+            alpha,
+            beta,
+            maximizingPlayer: true,
+          })
         }
       } else if (state.turn === Player.Blue) {
         if (options.algorithm_2 === 'Random') {
@@ -139,7 +116,8 @@ const Game = ({
           const beta = Number.POSITIVE_INFINITY
           // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })
           setTimeout(() => {
-            alphaBetaWorker.postMessage({
+            gameWorker.postMessage({
+              type: 'alphaBeta',
               state,
               depth: 1,
               alpha,
@@ -152,7 +130,8 @@ const Game = ({
           const alpha = Number.NEGATIVE_INFINITY
           const beta = Number.POSITIVE_INFINITY
           // minimaxWorker.postMessage({ state, depth: 3, maximizingPlayer: true })
-          alphaBetaWorker.postMessage({
+          gameWorker.postMessage({
+            type: 'alphaBeta',
             state,
             depth: 2,
             alpha,
@@ -245,37 +224,19 @@ const Game = ({
 //     </>
 //   )
 // }
+
 export default function App() {
-  const [minimaxWorker, setMinimaxWorker] = useState<Worker | null>(null)
-  const [alphaBetaWorker, setAlphaBetaWorker] = useState<Worker | null>(null)
-  const [iterativeDeepeningWorker, setIterativeDeepeningWorker] =
-    useState<Worker | null>(null)
+  console.log('[App]')
+  const [gameWorker, setGameWorker] = useState<Worker>(createWorker())
 
-  useEffect(() => {
-    const newMinimaxWorker = new Worker(
-      new URL('./workers/minimaxWorker', import.meta.url),
-      { type: 'module' },
-    )
-    setMinimaxWorker(newMinimaxWorker)
-
-    const newAlphaBetaWorker = new Worker(
-      new URL('./workers/alphaBetaWorker', import.meta.url),
-      { type: 'module' },
-    )
-    setAlphaBetaWorker(newAlphaBetaWorker)
-
-    const newIterativeDeepeningWorker = new Worker(
-      new URL('./workers/iterativeDeepeningWorker', import.meta.url),
-      { type: 'module' },
-    )
-    setIterativeDeepeningWorker(newIterativeDeepeningWorker)
-
-    return () => {
-      if (newMinimaxWorker) newMinimaxWorker.terminate()
-      if (newAlphaBetaWorker) newAlphaBetaWorker.terminate()
-      if (newIterativeDeepeningWorker) newIterativeDeepeningWorker.terminate()
+  const getNewWorker = () => {
+    if (gameWorker) {
+      console.log('[getNewWorker] terminate', gameWorker)
+      gameWorker.terminate()
     }
-  }, [])
+    const worker = createWorker()
+    setGameWorker(worker)
+  }
 
   return (
     <div data-theme='cupcake'>
@@ -283,14 +244,8 @@ export default function App() {
         <h1 className='text-center text-5xl font-bold'>Gobblet!</h1>
         <div className='flex flex-col gap-2 md:flex-row'>
           <WinnerDialog />
-          {minimaxWorker && alphaBetaWorker && iterativeDeepeningWorker && (
-            <Game
-              minimaxWorker={minimaxWorker}
-              alphaBetaWorker={alphaBetaWorker}
-              iterativeDeepeningWorker={iterativeDeepeningWorker}
-            />
-          )}
-          <SideBar />
+          <Game gameWorker={gameWorker} />
+          <SideBar getNewWorker={getNewWorker} />
         </div>
       </main>
     </div>

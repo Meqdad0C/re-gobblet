@@ -14,3 +14,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </GameProvider>
   </React.StrictMode>,
 )
+
+// ReactDOM.createRoot(document.getElementById('root')!).render(
+//     <GameProvider>
+//       <OptionsProvider>
+//         <App />
+//       </OptionsProvider>
+//     </GameProvider>
+// )
