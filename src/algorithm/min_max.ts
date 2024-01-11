@@ -1,14 +1,11 @@
 import { Board, Stack, Move, Player, GameState } from '@/types'
-
-import { doMove } from '@/reducers/game-reducer'
-
 import { getAllSuccesorStates, switch_turn } from '@/game-utils'
-import { Console } from 'console'
 
 const INFINITY: number = Number.POSITIVE_INFINITY
 
 export interface MinimaxResult {
   score: number
+  recursionCount: number
   move?: Move
 }
 
@@ -17,48 +14,58 @@ export function minimax(
   depth: number,
   isMaximizingPlayer: boolean,
   turn: Player,
+  recursionCount: number = 0,
 ): MinimaxResult {
+  recursionCount++
+
   if (depth === 0 || gameState.game_over) {
-    return { score: heuristic_value_of(gameState, turn) }
+    return { score: heuristic_value_of(gameState, turn), recursionCount }
   }
-  let playerBestMove
+
+  let bestMove: Move | undefined
+  let totalRecursionCount = recursionCount // Accumulator for all recursive calls
+
+  const successorStates = getAllSuccesorStates(gameState)
 
   if (isMaximizingPlayer) {
-    let maxEval: number = -INFINITY
-    let bestMove: Move | undefined
+    let maxEval = -Infinity
 
-    const successorStates = getAllSuccesorStates(gameState)
-    // console.log('[min_max getAllSuccesorStates]', successorStates)
     successorStates.forEach((successorState) => {
       successorState.states.forEach((stateMovePair) => {
-        const evaluation = minimax(stateMovePair.state, depth - 1, false, turn)
-        if (stateMovePair.state.game_over) {
-          // console.log(
-          //   '[winning state]',
-          //   heuristic_value_of(stateMovePair.state),
-          //   stateMovePair.state.turn,
-          // )
-        }
+        const evaluation = minimax(
+          stateMovePair.state,
+          depth - 1,
+          false,
+          turn,
+          recursionCount,
+        )
+        totalRecursionCount += evaluation.recursionCount - recursionCount // Aggregate recursion count
+
         if (evaluation.score > maxEval) {
           maxEval = evaluation.score
           bestMove = stateMovePair.move
-          playerBestMove = evaluation.move
         }
       })
     })
 
-    console.log('player best move', playerBestMove)
-
-    return { score: maxEval, move: bestMove }
+    return {
+      score: maxEval,
+      move: bestMove,
+      recursionCount: totalRecursionCount,
+    }
   } else {
-    let minEval: number = INFINITY
-    let bestMove: Move | undefined
+    let minEval = Infinity
 
-    const successorStates = getAllSuccesorStates(gameState)
-    // console.log(successorStates)
     successorStates.forEach((successorState) => {
       successorState.states.forEach((stateMovePair) => {
-        const evaluation = minimax(stateMovePair.state, depth - 1, true, turn)
+        const evaluation = minimax(
+          stateMovePair.state,
+          depth - 1,
+          true,
+          turn,
+          recursionCount,
+        )
+        totalRecursionCount += evaluation.recursionCount - recursionCount // Aggregate recursion count
 
         if (evaluation.score < minEval) {
           minEval = evaluation.score
@@ -66,9 +73,15 @@ export function minimax(
         }
       })
     })
-    return { score: minEval, move: bestMove }
+
+    return {
+      score: minEval,
+      move: bestMove,
+      recursionCount: totalRecursionCount,
+    }
   }
 }
+
 export function minimax_with_pruning(
   gameState: GameState,
   depth: number,
@@ -76,16 +89,36 @@ export function minimax_with_pruning(
   beta: number,
   isMaximizingPlayer: boolean,
   turn: Player,
+  recursionCount: number = 0,
+  startTime?: number,
+  timeLimit?: number,
 ): MinimaxResult {
-  if (depth === 0 || gameState.game_over) {
-    return { score: heuristic_value_of(gameState, turn) }
+  recursionCount++
+
+  const currentTime = Date.now()
+  if (startTime && timeLimit) {
+    if (currentTime - startTime > timeLimit) {
+      // Time limit exceeded
+      return {
+        score: isMaximizingPlayer ? -Infinity : Infinity,
+        move: undefined,
+        recursionCount,
+      }
+    }
   }
 
+  if (depth === 0 || gameState.game_over) {
+    return { score: heuristic_value_of(gameState, turn), recursionCount }
+  }
+
+  let bestMove: Move | undefined
+  let totalRecursionCount = recursionCount // Accumulator for all recursive calls
+
   if (isMaximizingPlayer) {
-    let maxEval: number = -INFINITY
-    let bestMove: Move | undefined
+    let maxEval = -Infinity
 
     const successorStates = getAllSuccesorStates(gameState)
+
     for (const successorState of successorStates) {
       for (const stateMovePair of successorState.states) {
         const evaluation = minimax_with_pruning(
@@ -95,7 +128,12 @@ export function minimax_with_pruning(
           beta,
           false,
           turn,
+          recursionCount,
+          startTime,
+          timeLimit,
         )
+        totalRecursionCount += evaluation.recursionCount - recursionCount // Aggregate recursion count
+
         if (evaluation.score > maxEval) {
           maxEval = evaluation.score
           bestMove = stateMovePair.move
@@ -109,12 +147,17 @@ export function minimax_with_pruning(
         break // Beta cut-off
       }
     }
-    return { score: maxEval, move: bestMove }
+
+    return {
+      score: maxEval,
+      move: bestMove,
+      recursionCount: totalRecursionCount,
+    }
   } else {
-    let minEval: number = INFINITY
-    let bestMove: Move | undefined
+    let minEval = Infinity
 
     const successorStates = getAllSuccesorStates(gameState)
+
     for (const successorState of successorStates) {
       for (const stateMovePair of successorState.states) {
         const evaluation = minimax_with_pruning(
@@ -124,7 +167,12 @@ export function minimax_with_pruning(
           beta,
           true,
           turn,
+          recursionCount,
+          startTime,
+          timeLimit,
         )
+        totalRecursionCount += evaluation.recursionCount - recursionCount // Aggregate recursion count
+
         if (evaluation.score < minEval) {
           minEval = evaluation.score
           bestMove = stateMovePair.move
@@ -138,9 +186,64 @@ export function minimax_with_pruning(
         break // Alpha cut-off
       }
     }
-    return { score: minEval, move: bestMove }
+
+    return {
+      score: minEval,
+      move: bestMove,
+      recursionCount: totalRecursionCount,
+    }
   }
 }
+
+export function iterativeDeepeningMinimax(
+  gameState: GameState,
+  maxDepth: number,
+  isMaximizingPlayer: boolean,
+  turn: Player,
+  timeLimit: number,
+) {
+  let bestMove = null
+  let startTime = Date.now()
+  let bestScore = isMaximizingPlayer ? -Infinity : Infinity
+  let totalRecursionCount = 0
+
+  for (let depth = 1; depth <= maxDepth; depth++) {
+    const { score, move, recursionCount } = minimax_with_pruning(
+      gameState,
+      depth,
+      -Infinity,
+      Infinity,
+      isMaximizingPlayer,
+      turn,
+      0,
+      startTime,
+      timeLimit,
+    )
+
+    totalRecursionCount += recursionCount
+
+    //if the move come from the break then return the last best move
+    if (score === Infinity || score === -Infinity) {
+      return {
+        score: bestScore,
+        move: bestMove,
+        recursionCount: totalRecursionCount,
+      }
+    }
+
+    if (isMaximizingPlayer ? score > bestScore : score < bestScore) {
+      bestScore = score
+      bestMove = move
+    }
+  }
+
+  return {
+    score: bestScore,
+    move: bestMove,
+    recursionCount: totalRecursionCount,
+  }
+}
+
 export function heuristic_value_of(
   gameState: GameState,
   currentPlayer: Player,
@@ -152,8 +255,6 @@ export function heuristic_value_of(
   //Here the turn represents the player color who plays as AI
   let turn = currentPlayer
   score += evaluateLines(gameState.board, turn)
-
-  // Additional heuristic
 
   return score
 }
@@ -211,7 +312,7 @@ function evaluateLinePotential(
 
   const winningThreshold = 4 // Number of pieces needed to win
   const playerBonus = 10 // Bonus score for each piece of the current player
-  const opponentPenalty = -1 // Penalty score for each piece of the opponent
+  const opponentPenalty = -10 // Penalty score for each piece of the opponent
   const bigNegative = -100 // Big negative score if the opponent is about to win
 
   if (playerCount > 0 && opponentCount === 0) {
@@ -229,12 +330,9 @@ function evaluateLinePotential(
     }
   }
 
-  // No additional score for mixed lines (both players' pieces present)
-
   return lineScore
 }
 
-// Helper functions to extract rows, columns, and diagonals
 function getRow(board: Board, rowIndex: number): Array<Stack> {
   return board[rowIndex]
 }

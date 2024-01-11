@@ -1,5 +1,5 @@
 import { minimax } from '@/algorithm/min_max'
-import { GameState } from '@/types'
+import { GameState, Player } from '@/types'
 
 export type MinimaxProps = {
   state: GameState
@@ -10,7 +10,6 @@ export type MinimaxProps = {
 self.onmessage = (e: MessageEvent<MinimaxProps>) => {
   console.log('[minimaxWorker] received message')
   const { state, depth, maximizingPlayer } = e.data
-
   // Execute the minimax algorithm
   const result = minimax(state, depth, maximizingPlayer, state.turn)
 
