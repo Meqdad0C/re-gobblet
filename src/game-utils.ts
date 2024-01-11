@@ -1,4 +1,5 @@
 import {
+  Board,
   GameState,
   Move,
   Piece_t,
@@ -461,4 +462,99 @@ export const ai_random_move = (state: GameState) => {
   }
 
   return random_move
+}
+
+export function isRepeatedState(state: GameState): boolean {
+  const boardHistory = state.boardHistory
+
+  // Check if there are at least 10 moves in the moveHistory
+  if (boardHistory.length < 6) {
+    return false
+  }
+
+  // Get the last 10 boards from the moveHistory
+  const lastEightBoards = boardHistory
+
+  // let identicalsNumber
+
+  // Check if there are 3 identical boards in the lastSixBoards array
+  return (
+    areBoardsIdentical(lastEightBoards[0], lastEightBoards[2]) &&
+    areBoardsIdentical(lastEightBoards[2], lastEightBoards[4]) &&
+    areBoardsIdentical(lastEightBoards[1], lastEightBoards[3]) &&
+    areBoardsIdentical(lastEightBoards[3], lastEightBoards[5])
+  )
+  // for (let i = 0; i < lastEightBoards.length - 1; i++) {
+  //   identicalsNumber = 0
+  //   for (let j = i + 1; j < lastEightBoards.length; j++) {
+  //     if (areBoardsIdentical(lastEightBoards[i], lastEightBoards[j])) {
+  //       identicalsNumber++
+  //       console.log(identicalsNumber)
+  //     }
+  //   }
+  //   if (identicalsNumber >= 2) {
+  //     return true
+  //   }
+  // }
+  return false
+}
+
+function areBoardsIdentical(board1: Board, board2: Board): boolean {
+  // Check if the number of rows and columns is the same
+  if (
+    board1.length !== board2.length ||
+    board1[0].length !== board2[0].length
+  ) {
+    return false
+  }
+
+  // Iterate through each cell in the board
+  for (let row = 0; row < board1.length; row++) {
+    for (let col = 0; col < board1[row].length; col++) {
+      const stack1 = board1[row][col]
+      const stack2 = board2[row][col]
+
+      // Check if the lengths of the stacks are the same
+      if (stack1.length !== stack2.length) {
+        return false
+      }
+
+      // Iterate through each piece in the stack
+      for (let i = 0; i < stack1.length; i++) {
+        const piece1 = stack1[i]
+        const piece2 = stack2[i]
+
+        // Compare the pieces for equality
+        if (!arePiecesEqual(piece1, piece2)) {
+          return false
+        }
+      }
+    }
+  }
+  // If all elements are equal, the boards are identical
+  return true
+}
+function arePiecesEqual(piece1: Piece_t, piece2: Piece_t): boolean {
+  // Compare the properties of the two pieces for equality
+  return (
+    piece1.stack_number === piece2.stack_number &&
+    piece1.player === piece2.player &&
+    piece1.size === piece2.size &&
+    areLocationsEqual(piece1.location, piece2.location)
+  )
+}
+
+function areLocationsEqual(location1: number[], location2: number[]): boolean {
+  // Compare two location arrays for equality
+  if (location1.length !== location2.length) {
+    return false
+  }
+
+  for (let i = 0; i < location1.length; i++) {
+    if (location1[i] !== location2[i]) {
+      return false
+    }
+  }
+
+  return true
 }

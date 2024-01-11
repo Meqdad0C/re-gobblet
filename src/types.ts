@@ -2,6 +2,10 @@ export enum Player {
   Red,
   Blue,
 }
+export enum Draw {
+  False = 2,
+  True = 3,
+}
 
 export enum Size {
   Small,
@@ -23,10 +27,11 @@ export interface GameState {
   inventories: [Array<Stack>, Array<Stack>]
   turn: Player
   possible_moves: Array<PossibleMovesForPiece>
-  winner: Player | null
+  winner: Player | null | Draw
   game_over: boolean
   game_started: boolean
   touched_board_piece_location: null | number[]
+  boardHistory: Board[] // Array to store the history of moves
 }
 
 export interface GameOptions {
@@ -68,5 +73,5 @@ export type GameAction =
   | Move
   | Restart
   | { type: 'SHOW_BOARD' }
-  | { type: 'END'}
+  | { type: 'END' }
   | { type: 'TOUCH_BOARD_PIECE'; payload: { location: number[] } }
