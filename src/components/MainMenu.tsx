@@ -81,7 +81,7 @@ export function MainMenu() {
                   <Label htmlFor='mm'>Medium</Label>
                 </div>
                 <div className='flex items-center space-x-2'>
-                  <RadioGroupItem value='ab' id='ab' />
+                  <RadioGroupItem value='AlphaBeta' id='ab' />
                   <Label htmlFor='AlphaBeta'>Hard</Label>
                 </div>
               </RadioGroup>

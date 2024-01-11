@@ -42,13 +42,15 @@ export const SideBar = () => {
           {(options.game_type === 'PvAI' || options.game_type === 'AIvAI') && (
             <p className='text-center'>
               <span className='text-lg font-bold'>Difficulty 1:</span>{' '}
-              {options.algorithm_1}
+              {options.algorithm_1=='AlphaBeta'?'Hard':options.algorithm_1=='Minimax'?'Easy':
+              options.algorithm_1=='Random'?'Easy':''}
             </p>
           )}
           {options.game_type === 'AIvAI' && (
             <p className='text-center'>
               <span className='text-lg font-bold'>Difficulty 2:</span>{' '}
-              {options.algorithm_2}
+              {options.algorithm_2=='AlphaBeta'?'Hard':options.algorithm_2=='Minimax'?'Easy':
+              options.algorithm_2=='Random'?'Easy':''}
             </p>
           )}
           <p>
