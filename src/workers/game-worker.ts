@@ -1,9 +1,7 @@
 import { GameState, Move } from '@/types'
-import {
-  iterativeDeepeningMinimax,
-  minimax,
-  minimax_with_pruning,
-} from '@/algorithm'
+import { iterativeDeepeningMinimax } from '@/algorithm/iterativeDeepening'
+import { minimax } from '@/algorithm/min_max'
+import { minimax_with_pruning } from '@/algorithm/alphaBeta'
 
 export type MinimaxProps = {
   type: 'minimax'
