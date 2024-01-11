@@ -4,7 +4,7 @@ import { useGame, useGameDispatch, useOptions } from '@/hooks/game-hooks'
 import { WinnerDialog } from './components/winner-dialog'
 import { useEffect, useState } from 'react'
 import { SideBar } from './components/SideBar'
-import { ai_random_move, createWorker } from './game-utils'
+import { ai_random_move } from './game-utils'
 import { Inventory, Board } from './components/Board'
 import { GameWorkerResult } from './workers/game-worker'
 
@@ -223,6 +223,13 @@ const Game = ({ gameWorker }: GameProps) => {
 //     </>
 //   )
 // }
+
+const createWorker = () => {
+  const worker = new Worker(new URL('./workers/game-worker', import.meta.url), {
+    type: 'module',
+  })
+  return worker
+}
 
 export default function App() {
   console.log('[App]')

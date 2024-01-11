@@ -559,10 +559,3 @@ function areLocationsEqual(location1: number[], location2: number[]): boolean {
   return true
 }
 
-
-export const createWorker = () => {
-  const worker = new Worker(new URL('./workers/game-worker', import.meta.url), {
-    type: 'module',
-  })
-  return worker
-}
