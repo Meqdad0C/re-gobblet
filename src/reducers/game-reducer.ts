@@ -1,5 +1,6 @@
 import { game_initial_state } from '@/constants'
-import { GameState, GameAction, Move } from '@/types'
+import { GameState, GameAction, Move, Player, Draw } from '@/types'
+import { isRepeatedState } from '../game-utils'
 import {
   isLegalMove,
   is_winning_state,
@@ -7,6 +8,7 @@ import {
   getPossibleMoves,
 } from '@/game-utils'
 import { minimax } from '@/algorithm/min_max'
+
 export const gameReducer = (state: GameState, action: GameAction) => {
   switch (action.type) {
     case 'MOVE':
@@ -40,6 +42,18 @@ export const doMove = (state: GameState, action: Move) => {
   const piece = from_stack.pop()!
   piece.location = to
   to_cell.push(piece)
+
+  if (state.boardHistory.length > 10) {
+    state.boardHistory.shift()
+  }
+  state.boardHistory.push(state.board)
+  // after making a move, check if there is a draw
+  if (isRepeatedState(state)) {
+    console.log('[doMove] draw declared')
+    state.game_over = true
+    state.winner = Draw.True
+    return state
+  }
 
   state.winner = is_winning_state(state)
   state.game_over = state.winner !== null
