@@ -73,25 +73,30 @@ const Game = ({ gameWorker, delay_ref }: GameProps) => {
   }
 
   const is_game_running = state.game_started && !state.game_over
-  const is_game_against_ai =
-    options.game_type === 'PvAI' || options.game_type === 'AIvAI'
+  const is_game_against_ai = options.game_type === 'PvAI' || options.game_type === 'AIvAI'
   const is_ai_match = options.game_type === 'AIvAI'
+  const is_pve = options.game_type === 'PvAI' && state.turn === Player.Blue
   useEffect(() => {
     if (!is_game_running || !is_game_against_ai) return
-    if (is_ai_match || state.turn === Player.Blue) {
-      const algorithm =
-        state.turn === Player.Red ? options.algorithm_1 : options.algorithm_2
-      switch (algorithm) {
-        case 'Random':
-          doRandom()
-          break
-        case 'Minimax':
-          doMinimax()
-          break
-        case 'AlphaBeta':
-          doAlphaBeta()
-          break
-      }
+    const algorithm = is_ai_match
+      ? state.turn == Player.Red
+        ? options.algorithm_1
+        : options.algorithm_2
+      : is_pve
+        ? options.algorithm_1
+        : null
+    if (!algorithm) return
+    console.log('[algorithm]', algorithm);
+    switch (algorithm) {
+      case 'Random':
+        doRandom()
+        break
+      case 'Minimax':
+        doMinimax()
+        break
+      case 'AlphaBeta':
+        doAlphaBeta()
+        break
     }
   }, [is_game_running, state.turn])
 
