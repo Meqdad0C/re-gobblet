@@ -103,5 +103,5 @@ function getDiagonal(board: Board, mainDiagonal: boolean): Array<Stack> {
   for (let i = 0; i < 4; i++) {
     diagonal.push(mainDiagonal ? board[i][i] : board[i][3 - i])
   }
-  return 
+  return diagonal
 }
