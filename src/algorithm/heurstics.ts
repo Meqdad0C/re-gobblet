@@ -7,8 +7,6 @@ export function heuristic_value_of(
 ): number {
   let score = 0
 
-  // Evaluate lines for scoring potential
-
   //Here the turn represents the player color who plays as AI
   const turn = currentPlayer
   score += evaluateLines(gameState.board, turn)
@@ -68,17 +66,17 @@ function evaluateLinePotential(
   let lineScore = 0
 
   const winningThreshold = 4 // Number of pieces needed to win
-  const playerBonus = 10 // Bonus score for each piece of the current player
-  const opponentPenalty = -9 // Penalty score for each piece of the opponent
+  const playerBonus = 15 // Bonus score for each piece of the current player
+  const opponentPenalty = 10 // Penalty score for each piece of the opponent
   const bigNegative = -100 // Big negative score if the opponent is about to win
 
-  if (playerCount > 0 && opponentCount === 0) {
+  if (playerCount > 0) {
     // Line has only the current player's pieces
     lineScore += playerBonus * playerCount
     if (playerCount === winningThreshold) {
-      lineScore += 150 // Big bonus for a winning line
+      lineScore += 1000 // Big bonus for a winning line
     }
-  } else if (opponentCount > 0 && playerCount === 0) {
+  } else if (opponentCount > 0) {
     // Line has only the opponent's pieces
     lineScore += opponentPenalty * opponentCount
     if (opponentCount === winningThreshold) {
