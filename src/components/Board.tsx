@@ -78,3 +78,4 @@ const Cell = ({ row, col }: { row: number; col: number; }) => {
     </div>
   );
 };
+Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quae neque harum tenetur ut praesentium quidem blanditiis consequuntur libero molestias? Officiis dolor nostrum error eos a fugiat minima quibusdam aliquid nihil.
